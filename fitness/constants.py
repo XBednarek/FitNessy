@@ -30,3 +30,7 @@ MOVE_UNKNWON = "unknown"
 MOVE_LEFT_UP_RIGHT_DOWN = "left up right down"
 MOVE_LEFT_DOWN_RIGHT_UP = "left down right up"
 MOVE_LEFT_DOWN_RIGHT_DOWN = "left down right down"
+
+# COULEURS BGR
+BGR_NESSY_BLUE = (80, 48, 8)
+BGR_NESSY_ORANGE = (74, 153, 242)
