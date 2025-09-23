@@ -1,6 +1,6 @@
 from calc_distance import calc_distance
 
-def left_up_detector(landmarks):
+def heels2buttocks_left_up_detector(landmarks):
     """
     Detects the left up pose.
     """
@@ -12,7 +12,7 @@ def left_up_detector(landmarks):
 
     return False
 
-def right_up_detector(landmarks):
+def heels2buttocks_right_up_detector(landmarks):
     """
     Detects the right up pose.
     """
@@ -24,7 +24,7 @@ def right_up_detector(landmarks):
 
     return False
 
-def left_down_detector(landmarks):
+def heels2buttocks_left_down_detector(landmarks):
     """
     Detects the left down pose.
     """
@@ -36,7 +36,7 @@ def left_down_detector(landmarks):
 
     return False
 
-def right_down_detector(landmarks):
+def heels2buttocks_right_down_detector(landmarks):
     """
     Detects the right down pose.
     """
