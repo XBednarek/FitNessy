@@ -148,7 +148,6 @@ class SquatDetector(Detector):
         mp_pose=mp.solutions.pose
         pose = mp_pose.Pose()
         self.counter = 0
-        
 
         if not self.cap.isOpened():
             print("Erreur : impossible d'ouvrir la webcam")
@@ -179,46 +178,29 @@ class SquatDetector(Detector):
             if hip and knee and ankle:
                 angle = calcul_angle(hip, knee, ankle)
 
-                cv2.putText(frame, str(int(angle)), (int(knee[0])+20, int(knee[1])),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,255,255), 2)
+                cv2.putText(frame, str(int(angle)), (int(knee[0])+20, int(knee[1])),cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,255,255), 2)
                 # afficher compteur
-                cv2.putText(frame, f'squat_counter: {self.counter}', (50,50),
-                            cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0,255,0), 3)
+                cv2.putText(frame, f'squat_counter: {self.counter}', (50,50),cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0,255,0), 3)
 
                 # dessiner les points
                 for p in [hip, knee, ankle]:
                     if p is not None:
                         cv2.circle(frame, (int(p[0]), int(p[1])), 10, (0,255,255), -1)
 
+            frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
             cv2.imshow("squat counter", frame)
 
             if cv2.waitKey(5) & 0xFF == ord('q'):  # q pour quitter
                 break
+      
+            if self.counter >= objective:
+                break
 
-        self.cap.release()
-        cv2.destroyAllWindows()
         return self.counter
-
 
 if __name__=='__main__':
     # Tests
     print("-"*80)
     print(" * Tests pour la classe SquatDetector *")
     print("-"*80)
-    from .squatdetector import SquatDetector
-    import mediapipe as mp
-    import cv2
-    import matplotlib.pyplot as plt
-    import numpy as np
-
-
-
-    mp_pose=mp.solutions.pose
-    pose_model= mp_pose.Pose()
-
-    detector = SquatDetector(mediapipe_model=pose_model, cap=0, verbose=True)
-
-    # Lancer le compteur
-
-    total_squats = detector.run(objective=10)  # objective est optionnel
-    print(f"Nombre total de squats réalisés : {total_squats}")
+    

@@ -89,6 +89,7 @@ class App :
             elif exo ==  cst.EX_SQUATS:
                 score=self.squats_detector.run(objectif)
                 scores[exo] = score
+
         # Résultats de la séance :
         for exo, score in scores.items():
             print(f"Score : {score:.1f} {exo}.")
@@ -110,7 +111,7 @@ if __name__=='__main__':
     #         cst.EX_HELLS2BUTTOCKS: 5,
     #         cst.EX_SQUATS: 5,
     #         cst.EX_PUSH_UP: 7}
-    exos = {cst.EX_SQUATS: 5}
+    exos = {cst.EX_SQUATS: 3}
     
     # Run du set :
     print("-"*10)
