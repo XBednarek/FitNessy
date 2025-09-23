@@ -96,7 +96,7 @@ class App :
         # Ajouts des zones cliquables
         cv2.rectangle(screen, button_go['rect_start'], button_go['rect_end'], button_go['line_color'], button_go['line_thickness'])
         text_position = ( int(0.8 * button_go['rect_start'][0] + 0.2 * button_go['rect_end'][0]),
-                          int(0.4 * button_go['rect_start'][1] + 0.8 * button_go['rect_end'][1]))
+                          int(0.4 * button_go['rect_start'][1] + 0.6 * button_go['rect_end'][1]))
         cv2.putText(screen, button_go['text'], text_position, button_go['text_font'], button_go['text_font_scale'], button_go['text_color'], button_go['text_thickness'], cv2.LINE_AA)
 
         # Gestion du callback de la souris
@@ -122,6 +122,9 @@ class App :
             # Quitter au clavier
             if cv2.waitKey(5) & 0xFF == ord('q'):
                 break
+
+        # Destruction de la fenetre
+        cv2.destroyWindow(win)
 
         return go
 
