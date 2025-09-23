@@ -142,6 +142,12 @@ class App :
             if exo == cst.EX_HELLS2BUTTOCKS :
                 score = self.heels_2_buttocks_detector.run(objectif)
                 scores[exo] = score
+            elif exo == cst.EX_PUSH_UP :
+                score = self.push_up_detector.run(objectif)
+                scores[exo] = score
+            elif exo ==  cst.EX_SQUATS:
+                score=self.squats_detector.run(objectif)
+                scores[exo] = score
         # Résultats de la séance :
         for exo, score in scores.items():
             print(f"Score : {score:.1f} {exo}.")
@@ -179,10 +185,11 @@ if __name__=='__main__':
     app = App(verbose=True)
 
     # Set d'exercice :
-    exos = {cst.EX_KNEERAISE: 10,
-            cst.EX_HELLS2BUTTOCKS: 5,
-            cst.EX_SQUATS: 5,
-            cst.EX_PUSH_UP: 7}
+    # exos = {cst.EX_KNEERAISE: 10,
+    #         cst.EX_HELLS2BUTTOCKS: 5,
+    #         cst.EX_SQUATS: 5,
+    #         cst.EX_PUSH_UP: 7}
+    exos = {cst.EX_SQUATS: 5}
     
     # Run de l'écran test :
     go = app.show_start_screen()
