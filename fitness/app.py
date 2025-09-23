@@ -83,6 +83,9 @@ class App :
             if exo == cst.EX_HELLS2BUTTOCKS :
                 score = self.heels_2_buttocks_detector.run(objectif)
                 scores[exo] = score
+            elif exo == cst.EX_PUSH_UP :
+                score = self.push_up_detector.run(objectif)
+                scores[exo] = score
         # Résultats de la séance :
         for exo, score in scores.items():
             print(f"Score : {score:.1f} {exo}.")
