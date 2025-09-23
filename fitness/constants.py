@@ -19,7 +19,7 @@ LEFT_HIP = mp.solutions.pose.PoseLandmark.LEFT_HIP
 
 # Nom des exercices
 EX_PUSH_UP = "Pompes"
-EX_HELLS2BUTTOCKS = "Talons-fesses"
+EX_HEELS2BUTTOCKS = "Talons-fesses"
 EX_KNEERAISE = "Montées de genoux"
 EX_SQUATS = "Squats"
 
@@ -34,3 +34,10 @@ MOVE_LEFT_DOWN_RIGHT_DOWN = "left down right down"
 # COULEURS BGR
 BGR_NESSY_BLUE = (80, 48, 8)
 BGR_NESSY_ORANGE = (74, 153, 242)
+
+# Nom des fenêtres : ne pas mettre d'accent !
+WIN_NAME_TITLE = "Bienvenue"
+WIN_NAME_PUSHUP = "Pompes !"
+WIN_NAME_HEELS2BUTTOCKS= "Talons fesses !"
+WIN_NAME_KNEERAISE = "Montees de genoux !"
+WIN_NAME_SQUATS = "Squats !"

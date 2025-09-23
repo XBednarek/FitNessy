@@ -112,7 +112,6 @@ class SquatDetector(Detector):
             
         return key_points
     
-
     # Masquage
     def detect(self, positions: np.ndarray) -> str:
         """Détecte une position dans les deux cotés droit et gauche"""
@@ -148,7 +147,6 @@ class SquatDetector(Detector):
         mp_pose=mp.solutions.pose
         pose = mp_pose.Pose()
         self.counter = 0
-        
 
         if not self.cap.isOpened():
             print("Erreur : impossible d'ouvrir la webcam")
@@ -166,8 +164,6 @@ class SquatDetector(Detector):
             results = pose.process(rgb_frame)
 
             points = self.extract_position(results, frame.shape)
-            self.detect(points)
-
             
             hip=knee=ankle=None
             # choisir le côté détecté
@@ -190,13 +186,14 @@ class SquatDetector(Detector):
                     if p is not None:
                         cv2.circle(frame, (int(p[0]), int(p[1])), 10, (0,255,255), -1)
 
-            cv2.imshow("squat counter", frame)
+            cv2.imshow(cst.WIN_NAME_SQUATS, frame)
 
             if cv2.waitKey(5) & 0xFF == ord('q'):  # q pour quitter
                 break
 
-        self.cap.release()
-        cv2.destroyAllWindows()
+        # Destruction de la fenetre
+        cv2.destroyWindow(cst.WIN_NAME_SQUATS)
+
         return self.counter
 
 

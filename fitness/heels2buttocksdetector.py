@@ -93,10 +93,13 @@ class Heels2ButtocksDetector(Detector):
             # Convertion avant affichage
             result_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-            cv2.imshow('MediaPipe', result_image)
+            cv2.imshow(cst.WIN_NAME_HEELS2BUTTOCKS, result_image)
 
             if cv2.waitKey(5) & 0xFF == ord('q'):
                 break
+        
+        # Destruction de la fenetre
+        cv2.destroyWindow(cst.WIN_NAME_HEELS2BUTTOCKS)
 
         return heels_butt_counter
 
