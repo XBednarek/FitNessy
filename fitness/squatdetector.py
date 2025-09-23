@@ -148,14 +148,14 @@ class SquatDetector(Detector):
         mp_pose=mp.solutions.pose
         pose = mp_pose.Pose()
         self.counter = 0
-        cap = cv2.VideoCapture(0)
+        
 
-        if not cap.isOpened():
+        if not self.cap.isOpened():
             print("Erreur : impossible d'ouvrir la webcam")
             return
 
-        while cap.isOpened():
-            success, frame = cap.read()
+        while self.cap.isOpened():
+            success, frame = self.cap.read()
             if not success:
                 print("Ignoring empty camera frame.")
                 continue
@@ -192,10 +192,10 @@ class SquatDetector(Detector):
 
             cv2.imshow("squat counter", frame)
 
-            if cv2.waitKey(1) & 0xFF == 27:  # ESC pour quitter
+            if cv2.waitKey(5) & 0xFF == ord('q'):  # q pour quitter
                 break
 
-        cap.release()
+        self.cap.release()
         cv2.destroyAllWindows()
         return self.counter
 
