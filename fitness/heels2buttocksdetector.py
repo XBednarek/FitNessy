@@ -30,7 +30,7 @@ class Heels2ButtocksDetector(Detector):
         """Run le décompte et renvoie le nombre de fois que l'exercice à été
            réalisé"""
         
-        push_up_counter = 0
+        heels_butt_counter = 0
         move = cst.MOVE_UNKNWON
         
         while  self.cap.isOpened():
@@ -56,18 +56,21 @@ class Heels2ButtocksDetector(Detector):
                     print(f"{detection =}")
 
                 # Count
-                if detection == "up" :
+                # detection = detected move
+                # move = next move to perform
+                if detection == "left_up_right_down":
                     if move == cst.MOVE_UNKNWON :
-                        move = cst.MOVE_DOWN
-                    elif move == cst.MOVE_UP :
-                        push_up_counter += 0.5
-                        move = cst.MOVE_DOWN
-                elif detection == "down" :
+                        move = cst.MOVE_LEFT_DOWN_RIGHT_UP
+                    elif move == cst.MOVE_LEFT_UP_RIGHT_DOWN :
+                        heels_butt_counter += 0.5
+                        move = cst.MOVE_LEFT_DOWN_RIGHT_UP
+                elif detection == "left_down_right_up":
                     if move == cst.MOVE_UNKNWON :
-                        move = cst.MOVE_UP
-                    elif move == cst.MOVE_DOWN :
-                        push_up_counter += 0.5
-                        move = cst.MOVE_UP
+                        move = cst.MOVE_LEFT_UP_RIGHT_DOWN
+                    elif move == cst.MOVE_LEFT_DOWN_RIGHT_UP :
+                        heels_butt_counter += 0.5
+                        move = cst.MOVE_LEFT_UP_RIGHT_DOWN
+
             
             # Show counter :
             font = cv2.FONT_HERSHEY_SIMPLEX
@@ -80,7 +83,7 @@ class Heels2ButtocksDetector(Detector):
             position2 = (10, 40) 
             position3 = (10, 60)
 
-            text_count = f"Pushup #: {push_up_counter}"
+            text_count = f"Heels-butt #: {heels_butt_counter}"
             text_status = f"Move status: {move}"
             text_lastdetect = f"Last: {detection}"
             cv2.putText(image, text_count, position, font, font_scale, color, thickness, cv2.LINE_AA)
@@ -95,16 +98,16 @@ class Heels2ButtocksDetector(Detector):
             if cv2.waitKey(5) & 0xFF == ord('q'):
                 break
 
-        return push_up_counter
+        return heels_butt_counter
 
 
     # Masquage
     def detect(self, positions: np.ndarray) -> str:
         """Détecte une position"""
-        if self.heels2buttocks_left_up_detector(positions):
-            return 'up'
-        elif self.heels2buttocks_left_down_detector(positions):
-            return 'down'
+        if self.heels2buttocks_left_up_detector(positions) and self.heels2buttocks_right_down_detector(positions):
+            return 'left_up_right_down'
+        elif self.heels2buttocks_left_down_detector(positions) and self.heels2buttocks_right_up_detector(positions):
+            return 'left_down_right_up'
         else :
             return 'other'
 
@@ -168,3 +171,12 @@ if __name__=='__main__':
     print("-"*80)
     print(" * Tests pour la classe Heels2ButtocksDetector *")
     print("-"*80)
+    import mediapipe as mp
+    # Modèle mediapipe :
+    mediapipe_model = mp.solutions.holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5)
+    # Capture vidéo :
+    cap = cv2.VideoCapture(0)
+    # Réglage de la verbosité
+    verbose = True
+    heels_2_buttocks_detector = Heels2ButtocksDetector(mediapipe_model, cap, verbose)
+    heels_2_buttocks_detector.run(objective=10)
