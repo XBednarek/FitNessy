@@ -1,0 +1,8 @@
+# On ne versionne pas les fichiers liés à UV (sauf le pyproject.toml)
+.venv
+uv.lock
+
+# On ne versionne par le cache 
+__pycache__
+
+

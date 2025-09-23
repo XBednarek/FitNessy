@@ -1,0 +1,18 @@
+[project]
+name = "fitnessy"
+version = "0.1.0"
+description = "Projet ACV #2 : création d'une application de fitess"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "jupyter>=1.1.1",
+    "keras>=3.11.3",
+    "matplotlib>=3.10.6",
+    "mediapipe>=0.10.21",
+    "opencv-python>=4.11.0.86",
+    "pandas>=2.3.2",
+    "plotly>=6.3.0",
+    "scikit-learn>=1.7.2",
+    "tensorflow>=2.18.1",
+    "typing>=3.10.0.0",
+]
