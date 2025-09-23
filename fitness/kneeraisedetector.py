@@ -110,7 +110,7 @@ class KneeRaiseDetector(Detector):
             # Convertion avant affichage
             result_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-            cv2.imshow('MediaPipe', result_image)
+            cv2.imshow(cst.WIN_NAME_KNEERAISE, result_image)
 
             if knee_raise_counter >= objective :
                 cv2.waitKey(5000)
@@ -118,6 +118,9 @@ class KneeRaiseDetector(Detector):
 
             if cv2.waitKey(5) & 0xFF == ord('q'):
                 break
+
+        # Destruction de la fenetre
+        cv2.destroyWindow(cst.WIN_NAME_KNEERAISE)
 
         return knee_raise_counter
 

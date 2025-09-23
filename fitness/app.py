@@ -85,10 +85,10 @@ class App :
         # Zone de textes cliquables
         button_go = {'rect_start': (295, 400),
                      'rect_end': (345, 450),
-                     "line_color": (0, 255, 0),
+                     "line_color": cst.BGR_NESSY_BLUE,
                      "line_thickness": 2,
                      'text': 'GO !',
-                     "text_color": (0, 255, 0),
+                     "text_color": cst.BGR_NESSY_ORANGE,
                      "text_font": cv2.FONT_HERSHEY_SIMPLEX,
                      "text_thickness": 1,
                      "text_font_scale": 0.5}
@@ -96,11 +96,11 @@ class App :
         # Ajouts des zones cliquables
         cv2.rectangle(screen, button_go['rect_start'], button_go['rect_end'], button_go['line_color'], button_go['line_thickness'])
         text_position = ( int(0.8 * button_go['rect_start'][0] + 0.2 * button_go['rect_end'][0]),
-                          int(0.8 * button_go['rect_start'][1] + 0.2 * button_go['rect_end'][1]))
+                          int(0.4 * button_go['rect_start'][1] + 0.6 * button_go['rect_end'][1]))
         cv2.putText(screen, button_go['text'], text_position, button_go['text_font'], button_go['text_font_scale'], button_go['text_color'], button_go['text_thickness'], cv2.LINE_AA)
 
         # Gestion du callback de la souris
-        win = "First screen"
+        win = cst.WIN_NAME_TITLE
         cv2.namedWindow(win)
         cv2.setMouseCallback(win, self.mouse_callback)
 
@@ -123,6 +123,9 @@ class App :
             if cv2.waitKey(5) & 0xFF == ord('q'):
                 break
 
+        # Destruction de la fenetre
+        cv2.destroyWindow(win)
+
         return go
 
     # Lancement d'un set d'exercice
@@ -139,14 +142,17 @@ class App :
         for exo, objectif in exercices.items():
             if self.verbose:
                 print(f"Objectif {objectif:d} {exo}.")
-            if exo == cst.EX_HELLS2BUTTOCKS :
+            if exo == cst.EX_HEELS2BUTTOCKS :
                 score = self.heels_2_buttocks_detector.run(objectif)
                 scores[exo] = score
             elif exo == cst.EX_PUSH_UP :
                 score = self.push_up_detector.run(objectif)
                 scores[exo] = score
             elif exo ==  cst.EX_SQUATS:
-                score=self.squats_detector.run(objectif)
+                 score=self.squats_detector.run(objectif)
+                 scores[exo] = score
+            elif exo ==  cst.EX_KNEERAISE:
+                score=self.knee_raise_detector.run(objectif)
                 scores[exo] = score
         # Résultats de la séance :
         for exo, score in scores.items():
@@ -171,8 +177,6 @@ class App :
             self.right_clicked_y = y
         
 
-
-
 if __name__=='__main__':
     # Tests
     print("-"*80)
@@ -186,7 +190,7 @@ if __name__=='__main__':
 
     # Set d'exercice :
     exos = {cst.EX_KNEERAISE: 10,
-            cst.EX_HELLS2BUTTOCKS: 5,
+            cst.EX_HEELS2BUTTOCKS: 5,
             cst.EX_SQUATS: 5,
             cst.EX_PUSH_UP: 7}
     

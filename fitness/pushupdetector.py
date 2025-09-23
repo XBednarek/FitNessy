@@ -99,10 +99,15 @@ class PushUpDetector(Detector):
             # Convertion avant affichage
             result_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-            cv2.imshow('MediaPipe', result_image)
+            cv2.imshow(cst.WIN_NAME_PUSHUP, result_image)
 
             if cv2.waitKey(5) & 0xFF == ord('q'):
                 break
+            if push_up_counter >= objective :
+                break
+
+        # Destruction de la fenetre
+        cv2.destroyWindow(cst.WIN_NAME_PUSHUP)
 
         return push_up_counter
 
