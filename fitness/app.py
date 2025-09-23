@@ -185,11 +185,10 @@ if __name__=='__main__':
     app = App(verbose=True)
 
     # Set d'exercice :
-    # exos = {cst.EX_KNEERAISE: 10,
-    #         cst.EX_HELLS2BUTTOCKS: 5,
-    #         cst.EX_SQUATS: 5,
-    #         cst.EX_PUSH_UP: 7}
-    exos = {cst.EX_SQUATS: 5}
+    exos = {cst.EX_KNEERAISE: 10,
+            cst.EX_HELLS2BUTTOCKS: 5,
+            cst.EX_SQUATS: 5,
+            cst.EX_PUSH_UP: 7}
     
     # Run de l'écran test :
     go = app.show_start_screen()
