@@ -89,7 +89,30 @@ def calc_distance(array, point1, point2):
     dist = (dist_x**2 + dist_y**2)**0.5
 
     return dist
+
+
+def calcul_angle(A,B,C):
+    """
+    calculer langle entre le genou , cheville et hanche 
+    """
+    A=np.array(A)
+    B=np.array(B)
+    C=np.array(C)
+
+    # calculer les vecteurs AB et CB ( A: epaule, B: coude, C:Poinet )
+    AB=A-B
+    CB=C-B
+
+    # cacluler l'angle 
+
+    cos_angle=np.dot(AB,CB)/(np.linalg.norm(AB) * np.linalg.norm(CB))
+
+    # Convertir en degrés
+    angle = np.degrees(np.arccos(cos_angle))
     
+    return angle
+
+
 if __name__=='__main__':
     # Tests
     print("-"*80)

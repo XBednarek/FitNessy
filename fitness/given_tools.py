@@ -57,6 +57,7 @@ def run_filter_with_mediapipe_model(mediapipe_model, mediapipe_based_filter=None
                 # [XB] j'ai rajouté la possibilité d'avoir un filtre simple !
                 if endfilter is not None :
                     result_image = endfilter(result_image)
+                    
 
                 # Je mets plutôt la conversion ici, mais ducoup ca peut changer des choses dans le display
                 result_image = cv2.cvtColor(result_image, cv2.COLOR_RGB2BGR)
@@ -125,3 +126,5 @@ if __name__=='__main__':
         mediapipe_model=Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5),
         mediapipe_based_filter=draw_holistic_results
         )
+
+    print(f"{last_image.shape = }")
