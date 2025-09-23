@@ -36,11 +36,11 @@ class App :
         # Pompes
         self.push_up_detector = PushUpDetector(self.mediapipe_model, self.cap, self.verbose)
         # Talons-fesses
-        self.push_up_detector = Heels2ButtocksDetector(self.mediapipe_model, self.cap, self.verbose)
+        self.heels_2_buttocks_detector = Heels2ButtocksDetector(self.mediapipe_model, self.cap, self.verbose)
         # Squats
-        self.push_up_detector = SquatDetector(self.mediapipe_model, self.cap, self.verbose)
+        self.squats_detector = SquatDetector(self.mediapipe_model, self.cap, self.verbose)
         # Montée de genou
-        self.push_up_detector = KneeRaiseDetector(self.mediapipe_model, self.cap, self.verbose)
+        self.knee_raise_detector = KneeRaiseDetector(self.mediapipe_model, self.cap, self.verbose)
 
 
     def __del__(self):
@@ -71,12 +71,21 @@ class App :
         """ Lancement d'un session d'exercice
 
         Args:
-            exercices (dict): Dictionnaire de type {"PushUp":20, "Heels2ButtocksDetector":10; " }
+            exercices (dict): Dictionnaire de la séance
         """
+
+        # Dictionnaire des scores :
+        scores = {}
+        # Lancement de la séance d'exercice
         for exo, objectif in exercices.items():
             if self.verbose:
                 print(f"Objectif {objectif:d} {exo}.")
-
+            if exo == cst.EX_HELLS2BUTTOCKS :
+                score = self.heels_2_buttocks_detector.run(objectif)
+                scores[exo] = score
+        # Résultats de la séance :
+        for exo, score in scores.items():
+            print(f"Score : {score:.1f} {exo}.")
 
 
 if __name__=='__main__':

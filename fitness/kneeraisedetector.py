@@ -41,4 +41,3 @@ if __name__=='__main__':
     print("-"*80)
     print(" * Tests pour la classe KneeRaiseDetector *")
     print("-"*80)
-    pass

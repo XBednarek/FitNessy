@@ -22,7 +22,7 @@ class Detector :
     # -------------------------------------------------------------------------
     
     # Abstraite !
-    def run(self, objective:int) -> int:
+    def run(self, objective:int) -> float:
         """Run le décompte et renvoie le nombre de fois que l'exercice à été
            réalisé"""
         raise NotImplementedError("Cette fonction doit être implémentée dans la classe fille !")

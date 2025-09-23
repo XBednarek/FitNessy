@@ -1,5 +1,5 @@
 # FitNessy
-Fitness application
+Application de fitness
 
 # Pour générer l'env. python :
 uv sync
@@ -12,7 +12,6 @@ uv run python3 -m fitness.app
 
 # Et si on veut en plus se passer de tous les warnings ...
 uv run python3 -m fitness.app 2>/dev/null
-
 
 # On peut aussi activer l'env. (un peu comme on faisait avec conda activate) :
 source .venv/bin/activate
