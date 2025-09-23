@@ -30,7 +30,7 @@ class Heels2ButtocksDetector(Detector):
         """Run le décompte et renvoie le nombre de fois que l'exercice à été
            réalisé"""
         
-        push_up_counter = 0
+        heels_butt_counter = 0
         move = cst.MOVE_UNKNWON
         
         while  self.cap.isOpened():
@@ -60,13 +60,13 @@ class Heels2ButtocksDetector(Detector):
                     if move == cst.MOVE_UNKNWON :
                         move = cst.MOVE_DOWN
                     elif move == cst.MOVE_UP :
-                        push_up_counter += 0.5
+                        heels_butt_counter += 0.5
                         move = cst.MOVE_DOWN
                 elif detection == "down" :
                     if move == cst.MOVE_UNKNWON :
                         move = cst.MOVE_UP
                     elif move == cst.MOVE_DOWN :
-                        push_up_counter += 0.5
+                        heels_butt_counter += 0.5
                         move = cst.MOVE_UP
             
             # Show counter :
@@ -80,7 +80,7 @@ class Heels2ButtocksDetector(Detector):
             position2 = (10, 40) 
             position3 = (10, 60)
 
-            text_count = f"Pushup #: {push_up_counter}"
+            text_count = f"Heels-butt #: {heels_butt_counter}"
             text_status = f"Move status: {move}"
             text_lastdetect = f"Last: {detection}"
             cv2.putText(image, text_count, position, font, font_scale, color, thickness, cv2.LINE_AA)
@@ -95,7 +95,7 @@ class Heels2ButtocksDetector(Detector):
             if cv2.waitKey(5) & 0xFF == ord('q'):
                 break
 
-        return push_up_counter
+        return heels_butt_counter
 
 
     # Masquage
