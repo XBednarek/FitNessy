@@ -27,8 +27,7 @@ class Heels2ButtocksDetector(Detector):
     def run(self, objective:int) -> int:
         """Run le décompte et renvoie le nombre de fois que l'exercice à été
            réalisé"""
-        # TODO
-        pass
+        return 5
 
     # Masquage
     def detect(self, positions: np.ndarray) -> str:
