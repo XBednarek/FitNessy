@@ -90,10 +90,32 @@ class Heels2ButtocksDetector(Detector):
             cv2.putText(image, text_status, position2, font, font_scale, color, thickness, cv2.LINE_AA)
             cv2.putText(image, text_lastdetect, position3, font, font_scale, color, thickness, cv2.LINE_AA)
 
+            if heels_butt_counter >= objective :
+                font = cv2.FONT_HERSHEY_SIMPLEX
+                font_scale = 1
+                color = (255, 95, 31)
+                thickness = 2
+                text1 = "Congratulations !"
+                position1 = (200, 100)
+                text2 = "you performed"
+                position2 = (220, 150)
+                text3 = f"{objective}"
+                position3 = (300, 225)
+                text4 = "heels-to-buttocks !"
+                position4 = (180, 275)
+                cv2.putText(image, text1, position1, font, font_scale, color, thickness, cv2.LINE_AA)
+                cv2.putText(image, text2, position2, font, font_scale, color, thickness, cv2.LINE_AA)
+                cv2.putText(image, text3, position3, font, 2, color, 3, cv2.LINE_AA)
+                cv2.putText(image, text4, position4, font, font_scale, color, thickness, cv2.LINE_AA)
+
             # Convertion avant affichage
             result_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
             cv2.imshow(cst.WIN_NAME_HEELS2BUTTOCKS, result_image)
+
+            if heels_butt_counter >= objective :
+                cv2.waitKey(5000)
+                break
 
             if cv2.waitKey(5) & 0xFF == ord('q'):
                 break
@@ -182,4 +204,4 @@ if __name__=='__main__':
     # Réglage de la verbosité
     verbose = True
     heels_2_buttocks_detector = Heels2ButtocksDetector(mediapipe_model, cap, verbose)
-    heels_2_buttocks_detector.run(objective=10)
+    heels_2_buttocks_detector.run(objective=4)
