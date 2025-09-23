@@ -85,7 +85,7 @@ class App :
                 scores[exo] = score
         # Résultats de la séance :
         for exo, score in scores.items():
-            print(f"Score : {score:d} {exo}.")
+            print(f"Score : {score:.1f} {exo}.")
 
 
 if __name__=='__main__':
