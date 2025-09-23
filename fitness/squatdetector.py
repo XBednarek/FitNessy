@@ -184,8 +184,6 @@ class SquatDetector(Detector):
                     if p is not None:
                         cv2.circle(frame, (int(p[0]), int(p[1])), 10, (0,255,255), -1)
 
-
-            frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
             cv2.imshow(cst.WIN_NAME_SQUATS, frame)
 
 
