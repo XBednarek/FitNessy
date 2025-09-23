@@ -103,6 +103,8 @@ class PushUpDetector(Detector):
 
             if cv2.waitKey(5) & 0xFF == ord('q'):
                 break
+            if push_up_counter >= objective :
+                break
 
         return push_up_counter
 
