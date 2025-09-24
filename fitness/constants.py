@@ -9,12 +9,16 @@ RIGHT_SHOULDER = mp.solutions.pose.PoseLandmark.RIGHT_SHOULDER
 RIGHT_ELBOW = mp.solutions.pose.PoseLandmark.RIGHT_ELBOW
 RIGHT_WRIST = mp.solutions.pose.PoseLandmark.RIGHT_WRIST
 RIGHT_HIP = mp.solutions.pose.PoseLandmark.RIGHT_HIP
+RIGHT_ANKLE = mp.solutions.pose.PoseLandmark.RIGHT_ANKLE
+RIGHT_KNEE = mp.solutions.pose.PoseLandmark.RIGHT_KNEE
 
 # Coté gauche
 LEFT_SHOULDER = mp.solutions.pose.PoseLandmark.LEFT_SHOULDER
 LEFT_ELBOW = mp.solutions.pose.PoseLandmark.LEFT_ELBOW
 LEFT_WRIST = mp.solutions.pose.PoseLandmark.LEFT_WRIST
 LEFT_HIP = mp.solutions.pose.PoseLandmark.LEFT_HIP
+LEFT_ANKLE = mp.solutions.pose.PoseLandmark.LEFT_ANKLE
+LEFT_KNEE = mp.solutions.pose.PoseLandmark.LEFT_KNEE
 
 
 # Nom des exercices
@@ -22,6 +26,7 @@ EX_PUSH_UP = "Pompes"
 EX_HEELS2BUTTOCKS = "Talons-fesses"
 EX_KNEERAISE = "Montées de genoux"
 EX_SQUATS = "Squats"
+EX_PLANK = "Planche"
 
 # MOUVEMENTS 
 MOVE_UP = "move up"
@@ -41,3 +46,4 @@ WIN_NAME_PUSHUP = "Pompes !"
 WIN_NAME_HEELS2BUTTOCKS= "Talons fesses !"
 WIN_NAME_KNEERAISE = "Montees de genoux !"
 WIN_NAME_SQUATS = "Squats !"
+WIN_NAME_PLANK = "Planche!"
