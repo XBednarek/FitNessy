@@ -3,6 +3,7 @@ from .heels2buttocksdetector import Heels2ButtocksDetector
 from .kneeraisedetector import KneeRaiseDetector
 from .pushupdetector import PushUpDetector
 from .squatdetector import SquatDetector
+from .treeposedetector import TreePoseDetector
 from .rectangle import Rectangle
 from .tools import composite_image, resize_to_height, to_float32, to_uint8
 from . import constants as cst # <-- Pour utiliser les constantes
@@ -47,6 +48,8 @@ class App :
         self.squats_detector = SquatDetector(self.mediapipe_model, self.cap, self.verbose)
         # Montée de genou
         self.knee_raise_detector = KneeRaiseDetector(self.mediapipe_model, self.cap, self.verbose)
+        # Positions de l'arbre
+        self.tree_pose_detector = TreePoseDetector(self.mediapipe_model, self.cap, self.verbose)
 
         # Positions de cliques de la souris
         self.left_clicked_x = -1
@@ -156,6 +159,7 @@ class App :
 
             if rect_shldmrks.contains(self.left_clicked_x, self.left_clicked_y):
                 self.show_landmarks = not self.show_landmarks
+                self.updateDetectors()
                 if self.verbose :
                     print(f"{self.show_landmarks =} ")
                 self.left_clicked_x = -1
@@ -190,16 +194,29 @@ class App :
             elif exo == cst.EX_PUSH_UP :
                 score = self.push_up_detector.run(objectif)
                 scores[exo] = score
-            elif exo ==  cst.EX_SQUATS:
-                 score=self.squats_detector.run(objectif)
-                 scores[exo] = score
+            # elif exo ==  cst.EX_SQUATS:
+            #      score=self.squats_detector.run(objectif)
+            #      scores[exo] = score
             elif exo ==  cst.EX_KNEERAISE:
                 score=self.knee_raise_detector.run(objectif)
+                scores[exo] = score
+            elif exo == cst.EX_TREEPOSE :
+                score=self.tree_pose_detector.run(objectif)
                 scores[exo] = score
 
         # Résultats de la séance :
         for exo, score in scores.items():
             print(f"Score : {score:.1f} {exo}.")
+
+    def updateDetectors(self) :
+        """Update des detecteurs"""
+        # On update l'option qui permet de montrer les landmarks ou pas
+        # RQ : pour encapsuler mieux on aurait du passer par une properties mais bon
+        self.heels_2_buttocks_detector.show_landmarks = self.show_landmarks
+        self.knee_raise_detector.show_landmarks = self.show_landmarks
+        self.squats_detector.show_landmarks = self.show_landmarks
+        self.push_up_detector.show_landmarks = self.show_landmarks
+        self.tree_pose_detector.show_landmarks = self.show_landmarks
 
     # -------------------------------------------------------------------------
     #                                                 Méthodes pour l'affichage
@@ -274,7 +291,8 @@ if __name__=='__main__':
     exos = {cst.EX_KNEERAISE: 10,
             cst.EX_HEELS2BUTTOCKS: 5,
             cst.EX_SQUATS: 5,
-            cst.EX_PUSH_UP: 7}
+            cst.EX_PUSH_UP: 7,
+            cst.EX_TREEPOSE: 10}
     
     # Run de l'écran test :
     go = app.show_start_screen()

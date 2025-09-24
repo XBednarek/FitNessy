@@ -17,10 +17,10 @@ class SquatDetector(Detector):
     #                                                              Constructeur
     # -------------------------------------------------------------------------
 
-    def __init__(self, mediapipe_model, cap, verbose:bool = False) -> None:
+    def __init__(self, mediapipe_model, cap, verbose:bool = False, show_landmark:bool = False) -> None:
         """Constructeur"""
         # Appel explicite du constructeur parent
-        super().__init__(mediapipe_model, cap, verbose)
+        super().__init__(mediapipe_model, cap, verbose, show_landmark)
         self.stage= None
         self.counter=0
     # -------------------------------------------------------------------------

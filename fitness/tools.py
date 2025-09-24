@@ -33,6 +33,7 @@ def image2position(image : np.ndarray, mediapipe_model, show:bool=False) -> np.n
 
     Returns:
         np.ndarray: Numpy array with x, y, z as column. Or None if no position have been detected.
+        object : results of the process
     """
 
     # Traitement

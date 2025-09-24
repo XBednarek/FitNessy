@@ -7,8 +7,8 @@ SCREEN_H_DEV = 720
 SCREEN_W_DEV = 1280
 
 # Résolution de l'écran pour l'utilisateur
-SCREEN_H = 720
-SCREEN_W = 1280
+SCREEN_H = 360
+SCREEN_W = 640
 
 # POSITION DU CORPS : 
 
@@ -29,6 +29,7 @@ EX_PUSH_UP = "Pompes"
 EX_HEELS2BUTTOCKS = "Talons-fesses"
 EX_KNEERAISE = "Montées de genoux"
 EX_SQUATS = "Squats"
+EX_TREEPOSE = "Tree Pose"
 
 # MOUVEMENTS 
 MOVE_UP = "move up"
