@@ -40,6 +40,8 @@ class App :
         self.verbose = verbose
         # Est-ce qu'on veut tracer les landmarks ?
         self.show_landmarks = False
+        # Est-ce qu'on se mets en mode mirroir
+        self.mirror_mode = False
 
         # Construction des detecteurs :
         # Pompes
@@ -151,6 +153,16 @@ class App :
                             text_color=color, text_font=cv2.FONT_HERSHEY_SIMPLEX,
                             text_thickness=1, text_font_scale=0.5*self.screen_scale)
             
+            if self.mirror_mode :
+                color = cst.BGR_NESSY_ORANGE
+            else :
+                color = cst.BGR_NESSY_LIGHT_GREY
+            
+            rect_mirror = Rectangle(current_screen, A=(0.4, 0.05), B=(0.6, 0.1), text='mirror mode',
+                            line_color=color, line_thickness=1,
+                            text_color=color, text_font=cv2.FONT_HERSHEY_SIMPLEX,
+                            text_thickness=1, text_font_scale=0.5*self.screen_scale)
+            
             # Affichage
             cv2.imshow(win, current_screen)
 
@@ -168,6 +180,14 @@ class App :
                 self.updateDetectors()
                 if self.verbose :
                     print(f"{self.show_landmarks =} ")
+                self.left_clicked_x = -1
+                self.left_clicked_y = -1
+            
+            if rect_mirror.contains(self.left_clicked_x, self.left_clicked_y):
+                self.mirror_mode = not self.mirror_mode
+                self.updateDetectors()
+                if self.verbose :
+                    print(f"{self.mirror_mode =} ")
                 self.left_clicked_x = -1
                 self.left_clicked_y = -1
             
@@ -223,6 +243,8 @@ class App :
         """Update des detecteurs"""
         # On update l'option qui permet de montrer les landmarks ou pas
         # RQ : pour encapsuler mieux on aurait du passer par une properties mais bon
+
+        # Mise à jour des landmarks
         self.heels_2_buttocks_detector.show_landmarks = self.show_landmarks
         self.knee_raise_detector.show_landmarks = self.show_landmarks
         self.squats_detector.show_landmarks = self.show_landmarks
@@ -230,6 +252,15 @@ class App :
         self.tree_pose_detector.show_landmarks = self.show_landmarks
         self.meditation_pose_detector.show_landmarks = self.show_landmarks
         self.plank_detector.show_landmarks = self.show_landmarks
+
+        # Mise à jour du mode mirroir
+        self.heels_2_buttocks_detector.flip_frame = self.mirror_mode
+        self.knee_raise_detector.flip_frame = self.mirror_mode
+        self.squats_detector.flip_frame = self.mirror_mode
+        self.push_up_detector.flip_frame = self.mirror_mode
+        self.tree_pose_detector.flip_frame = self.mirror_mode
+        self.meditation_pose_detector.flip_frame = self.mirror_mode
+        self.plank_detector.flip_frame = self.mirror_mode
 
     # -------------------------------------------------------------------------
     #                                                 Méthodes pour l'affichage
