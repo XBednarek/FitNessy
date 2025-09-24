@@ -3,19 +3,19 @@ from .detector import Detector
 from . import constants as cst # <-- Pour utiliser les constantes
 from .tools import calc_distance, image2position
 # (Pour exécuter ce fichier, il faut donc faire proprement depuis l'extérieur du package)
-# Exemple : uv run python3 -m fitness.treeposedetector
+# Exemple : uv run python3 -m fitness.meditationposedetector
 
 # Autres imports
 import numpy as np
 import cv2
 
-class TreePoseDetector(Detector):
+class MeditationPoseDetector(Detector):
 
     # -------------------------------------------------------------------------
     #                                                              Constructeur
     # -------------------------------------------------------------------------
 
-    def __init__(self, mediapipe_model, cap, verbose:bool = False, show_landmark:bool = False, windows_name:str = cst.WIN_NAME_TREE_POSE) -> None:
+    def __init__(self, mediapipe_model, cap, verbose:bool = False, show_landmark:bool = False, windows_name:str = cst.WIN_NAME_MEDITATION_POSE) -> None:
         """Constructeur"""
         # Appel explicite du constructeur parent
         super().__init__(mediapipe_model, cap, verbose, show_landmark, windows_name)
@@ -33,9 +33,8 @@ class TreePoseDetector(Detector):
         move = cst.MOVE_UNKNWON
         tolerance_max = 5
         tolerance = tolerance_max
-        min_detect_pose_frames = 5
+        min_detect_pose_frames = 10
         detect_pose_frames = 0
-        elapsed_time = 0
         
         while  self.cap.isOpened():
         
@@ -61,24 +60,26 @@ class TreePoseDetector(Detector):
                 # Count
                 # detection = detected move
                 # move = next move to perform
-                if detection == "tree_pose":
+                if detection == "meditation_pose":
                     if move == cst.MOVE_UNKNWON :
                         if detect_pose_frames < min_detect_pose_frames:
                             detect_pose_frames += 1
                         elif detect_pose_frames == min_detect_pose_frames:
                             start_timer = cv2.getTickCount()
-                            move = cst.MOVE_TREE_POSE
-                    elif move == cst.MOVE_TREE_POSE:
+                            move = cst.MOVE_MEDITATION_POSE
+                    elif move == cst.MOVE_MEDITATION_POSE:
                         if tolerance < tolerance_max:
                             tolerance += 1
                 elif detection == "other" and move == cst.MOVE_UNKNWON:
                     detect_pose_frames = 0
-                elif detection == "other" and move == cst.MOVE_TREE_POSE:
+                elif detection == "other" and move == cst.MOVE_MEDITATION_POSE:
                     tolerance -= 1
 
-            if move == cst.MOVE_TREE_POSE:
+            if move == cst.MOVE_MEDITATION_POSE:
                 elapsed_ticks = cv2.getTickCount() - start_timer
                 elapsed_time = round(elapsed_ticks / cv2.getTickFrequency(), 2)
+            else:
+                elapsed_time = 0
             
             # Show counter :
             font = cv2.FONT_HERSHEY_SIMPLEX
@@ -91,7 +92,7 @@ class TreePoseDetector(Detector):
             position2 = (10, 40) 
             position3 = (10, 60)
 
-            text_count = f"Tree pose #: {elapsed_time} sec."
+            text_count = f"Meditation pose #: {elapsed_time} sec."
             text_status = f"Move status: {move}"
             text_lastdetect = f"Last: {detection}"
             cv2.putText(self.image, text_count, position, font, font_scale, color, thickness, cv2.LINE_AA)
@@ -109,7 +110,7 @@ class TreePoseDetector(Detector):
                 position2 = (220, 150)
                 text3 = f"{objective} sec."
                 position3 = (250, 225)
-                text4 = "of the Tree pose !"
+                text4 = "of the Meditation pose !"
                 position4 = (180, 275)
                 cv2.putText(self.image, text1, position1, font, font_scale, color, thickness, cv2.LINE_AA)
                 cv2.putText(self.image, text2, position2, font, font_scale, color, thickness, cv2.LINE_AA)
@@ -127,7 +128,7 @@ class TreePoseDetector(Detector):
                 position2 = (220, 150)
                 text3 = f"{elapsed_time} sec."
                 position3 = (220, 225)
-                text4 = "of the Tree pose !"
+                text4 = "of the Meditation pose !"
                 position4 = (180, 275)
                 cv2.putText(self.image, text1, position1, font, font_scale, color, thickness, cv2.LINE_AA)
                 cv2.putText(self.image, text2, position2, font, font_scale, color, thickness, cv2.LINE_AA)
@@ -158,8 +159,8 @@ class TreePoseDetector(Detector):
     # Masquage
     def detect(self, positions: np.ndarray) -> str:
         """Détecte une position"""
-        if self.treepose_detector(positions):
-            return 'tree_pose'
+        if self.meditationpose_detector(positions):
+            return 'meditation_pose'
         else :
             return 'other'
 
@@ -167,33 +168,40 @@ class TreePoseDetector(Detector):
     #                                                        Méthodes statiques
     # -------------------------------------------------------------------------
     @staticmethod
-    def treepose_detector(landmarks: np.ndarray) -> bool:
+    def meditationpose_detector(landmarks: np.ndarray) -> bool:
         """
-        Detects the tree pose.
+        Detects the meditation pose.
         """
         # if landmarks:
         hip_distance = calc_distance(landmarks, 24, 23)
         left_wrist_right_wrist_dist = calc_distance(landmarks, 15, 16)
         left_knee_right_knee_dist = calc_distance(landmarks, 26, 25)
-        # detecting left tree pose
-        left_ankle_hip_dist = calc_distance(landmarks, 27, 23)
-        right_ankle_left_knee_dist = calc_distance(landmarks, 28, 25)
-        right_foot_left_knee_dist = calc_distance(landmarks, 32, 25)
-        # detecting right tree pose
-        right_ankle_hip_dist = calc_distance(landmarks, 28, 24)
-        left_ankle_right_knee_dist = calc_distance(landmarks, 27, 26)
-        left_foot_right_knee_dist = calc_distance(landmarks, 31, 26)
+        left_wrist_knee_dist = calc_distance(landmarks, 15, 25)
+        right_wrist_knee_dist = calc_distance(landmarks, 16, 26)
+        left_pinky_knee_dist = calc_distance(landmarks, 17, 25)
+        right_pinky_knee_dist = calc_distance(landmarks, 18, 26)
+        left_thumb_knee_dist = calc_distance(landmarks, 21, 25)
+        right_thumb_knee_dist = calc_distance(landmarks, 22, 26)
+        left_index_knee_dist = calc_distance(landmarks, 19, 25)
+        right_index_knee_dist = calc_distance(landmarks, 20, 26)
+        
+        left_foot_right_hip_distance = calc_distance(landmarks, 31, 24)
+        left_foot_left_hip_distance = calc_distance(landmarks, 31, 23)
+        right_foot_left_hip_distance = calc_distance(landmarks, 32, 23)
+        right_foot_right_hip_distance = calc_distance(landmarks, 32, 24)
 
-        if (left_ankle_hip_dist > 1.5*hip_distance
-            and (right_ankle_left_knee_dist < hip_distance or right_foot_left_knee_dist < hip_distance)
-            and left_wrist_right_wrist_dist < hip_distance
+        if (left_wrist_right_wrist_dist > hip_distance
             and left_knee_right_knee_dist > hip_distance
-            ):
-            return True
-        elif (right_ankle_hip_dist > 1.5*hip_distance
-            and (left_ankle_right_knee_dist < hip_distance or left_foot_right_knee_dist < hip_distance)
-            and left_wrist_right_wrist_dist < hip_distance
-            and left_knee_right_knee_dist > hip_distance
+            and (left_wrist_knee_dist < hip_distance
+                 or left_pinky_knee_dist < hip_distance
+                 or left_thumb_knee_dist < hip_distance
+                 or left_index_knee_dist < hip_distance)
+            and (right_wrist_knee_dist < hip_distance
+                 or right_pinky_knee_dist < hip_distance
+                 or right_thumb_knee_dist < hip_distance
+                 or right_index_knee_dist < hip_distance)
+            and left_foot_right_hip_distance < right_foot_right_hip_distance
+            and right_foot_left_hip_distance < left_foot_left_hip_distance
             ):
             return True
 
@@ -202,7 +210,7 @@ class TreePoseDetector(Detector):
 if __name__=='__main__':
     # Tests
     print("-"*80)
-    print(" * Tests pour la classe TreePoseDetector *")
+    print(" * Tests pour la classe MeditationPoseDetector *")
     print("-"*80)
     import mediapipe as mp
     # Modèle mediapipe :
@@ -211,5 +219,5 @@ if __name__=='__main__':
     cap = cv2.VideoCapture(0)
     # Réglage de la verbosité
     verbose = True
-    treepose_detector = TreePoseDetector(mediapipe_model, cap, verbose)
-    treepose_detector.run(objective=4)
+    meditationpose_detector = MeditationPoseDetector(mediapipe_model, cap, verbose)
+    meditationpose_detector.run(objective=4)

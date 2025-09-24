@@ -4,6 +4,8 @@ from .kneeraisedetector import KneeRaiseDetector
 from .pushupdetector import PushUpDetector
 from .squatdetector import SquatDetector
 from .treeposedetector import TreePoseDetector
+from .plankdetector import PlankDetector
+from .meditationposedetector import MeditationPoseDetector
 from .rectangle import Rectangle
 from .tools import composite_image, resize_to_height, to_float32, to_uint8
 from . import constants as cst # <-- Pour utiliser les constantes
@@ -50,6 +52,10 @@ class App :
         self.knee_raise_detector = KneeRaiseDetector(self.mediapipe_model, self.cap, self.verbose)
         # Positions de l'arbre
         self.tree_pose_detector = TreePoseDetector(self.mediapipe_model, self.cap, self.verbose)
+        # Planche
+        self.plank_detector = PlankDetector(self.mediapipe_model, self.cap, self.verbose)
+        # Médiation
+        self.meditation_pose_detector = MeditationPoseDetector(self.mediapipe_model, self.cap, self.verbose)
 
         # Positions de cliques de la souris
         self.left_clicked_x = -1
@@ -203,7 +209,12 @@ class App :
             elif exo == cst.EX_TREEPOSE :
                 score=self.tree_pose_detector.run(objectif)
                 scores[exo] = score
-
+            elif exo ==  cst.EX_PLANK :
+                score = self.plank_detector.run(objectif)
+                scores[exo] = score
+            elif exo == cst.EX_MEDITATION_POSE :
+                score = self.meditation_pose_detector.run(objectif)
+                scores[exo] = score
         # Résultats de la séance :
         for exo, score in scores.items():
             print(f"Score : {score:.1f} {exo}.")
@@ -217,6 +228,8 @@ class App :
         self.squats_detector.show_landmarks = self.show_landmarks
         self.push_up_detector.show_landmarks = self.show_landmarks
         self.tree_pose_detector.show_landmarks = self.show_landmarks
+        self.meditation_pose_detector.show_landmarks = self.show_landmarks
+        self.plank_detector.show_landmarks = self.show_landmarks
 
     # -------------------------------------------------------------------------
     #                                                 Méthodes pour l'affichage
@@ -292,7 +305,10 @@ if __name__=='__main__':
             cst.EX_HEELS2BUTTOCKS: 5,
             cst.EX_SQUATS: 5,
             cst.EX_PUSH_UP: 7,
-            cst.EX_TREEPOSE: 10}
+            cst.EX_TREEPOSE: 10,
+            cst.EX_PLANK: 10,
+            cst.EX_MEDITATION_POSE: 25}
+
     
     # Run de l'écran test :
     go = app.show_start_screen()
