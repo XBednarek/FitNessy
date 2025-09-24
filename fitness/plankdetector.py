@@ -35,7 +35,7 @@ class PlankDetector(Detector):
             plank_active = False
             start_time = 0
             elapsed = 0
-            tolerance_time = 5
+            tolerance_time = 2
             tolerance_start = None
 
             while self.cap.isOpened():
@@ -94,9 +94,28 @@ class PlankDetector(Detector):
                 cv2.putText(image, text, (10,50), font, font_scale, color, thickness, cv2.LINE_AA)
                 cv2.imshow(cst.WIN_NAME_PLANK, image)
 
+
+                #------------- manage when objective is reach ------
+                if elapsed >= objective :
+                    font = cv2.FONT_HERSHEY_SIMPLEX
+                    # set up size
+                    font_scale = 1
+                    # set up color
+                    color = (255, 95, 31)
+                    # set up thikness
+                    thickness = 2
+                    # add text on cv2 images at coordinate given
+                    cv2.putText(image, "Congratulations !", (200, 100), font, font_scale, color, thickness, cv2.LINE_AA)
+                    cv2.putText(image, "you performed", (220, 150), font, font_scale, color, thickness, cv2.LINE_AA)
+                    cv2.putText(image, f"{objective} sec.", (250, 225), font, font_scale+1, color, thickness+1, cv2.LINE_AA)
+                    cv2.putText(image, "of plank !", (180, 275), font, font_scale, color, thickness, cv2.LINE_AA)
+                    cv2.imshow(cst.WIN_NAME_PLANK, image)
+                    cv2.waitKey(5000)
+                    break
                 # --------- Set up "q" to quite ---------
                 if cv2.waitKey(5) & 0xFF == ord('q'):
                     break
+
 
             cv2.destroyWindow(cst.WIN_NAME_PLANK)
             return elapsed
@@ -124,11 +143,13 @@ class PlankDetector(Detector):
         # retriev the y coordinate
         right_elbow = position[cst.RIGHT_ELBOW][1]
         left_elbow  = position[cst.LEFT_ELBOW][1]
-        right_ankle = position[cst.RIGHT_ANKLE][1]
-        left_ankle  = position[cst.LEFT_ANKLE][1]
+        #right_ankle = position[cst.RIGHT_ANKLE][1]
+        #left_ankle  = position[cst.LEFT_ANKLE][1]
+        right_foot_index = position[cst.RIGHT_FOOT_INDEX][1]
+        left_foot_index = position[cst.LEFT_FOOT_INDEX][1]
 
-        tolerance = 0.1
-        y_values = [right_ankle,left_ankle, right_elbow, left_elbow]
+        tolerance = 0.15
+        y_values = [right_foot_index,left_foot_index, right_elbow, left_elbow]
 
         # chek if ankel and elbow are more or less at the same y
         return max(y_values)-min(y_values) < tolerance
@@ -156,15 +177,16 @@ class PlankDetector(Detector):
         left_hip_coordinate  = position[cst.LEFT_HIP]
         right_shoulder_coordinate = position[cst.RIGHT_SHOULDER]
         left_shoulder_coordinate  = position[cst.LEFT_SHOULDER]
-        #right_elbow_coordinate = position[cst.RIGHT_ELBOW]
-        #left_elbow_coordinate  = position[cst.LEFT_ELBOW]
+        right_elbow_coordinate = position[cst.RIGHT_ELBOW]
+        left_elbow_coordinate  = position[cst.LEFT_ELBOW]
+        
 
         # calcul angle  shoulder hip knee
-        angle_right = calcul_angle(right_shoulder_coordinate,right_hip_coordinate,right_knee_coordinate)
-        angle_left = calcul_angle (left_shoulder_coordinate,left_hip_coordinate,left_knee_coordinate)
+        angle_right = calcul_angle(right_elbow_coordinate,right_shoulder_coordinate,right_hip_coordinate)
+        angle_left = calcul_angle (left_elbow_coordinate,left_shoulder_coordinate,left_hip_coordinate)
 
         # tolerance around 180°
-        return 160< angle_right < 190 or 160< angle_left < 190
+        return 80< angle_right < 100 or 80< angle_left < 100
 
 
 
