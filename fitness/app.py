@@ -8,6 +8,7 @@ from .plankdetector import PlankDetector
 from .meditationposedetector import MeditationPoseDetector
 from .rectangle import Rectangle
 from .tools import composite_image, resize_to_height, to_float32, to_uint8
+from .bhujangasandetector import Bhujangasandetector
 from . import constants as cst # <-- Pour utiliser les constantes
 # (Pour exécuter ce fichier, il faut donc faire proprement depuis l'extérieur du package)
 # Exemple : uv run python3 -m fitness.app
@@ -58,6 +59,8 @@ class App :
         self.plank_detector = PlankDetector(self.mediapipe_model, self.cap, self.verbose)
         # Médiation
         self.meditation_pose_detector = MeditationPoseDetector(self.mediapipe_model, self.cap, self.verbose)
+        # Position du Cobra (yoga)
+        self.cobra_detector = Bhujangasandetector(self.mediapipe_model, self.cap, self.verbose)
 
         # Positions de cliques de la souris
         self.left_clicked_x = -1
@@ -220,9 +223,9 @@ class App :
             elif exo == cst.EX_PUSH_UP :
                 score = self.push_up_detector.run(objectif)
                 scores[exo] = score
-            # elif exo ==  cst.EX_SQUATS:
-            #      score=self.squats_detector.run(objectif)
-            #      scores[exo] = score
+            elif exo ==  cst.EX_SQUATS:
+                 score=self.squats_detector.run(objectif)
+                 scores[exo] = score
             elif exo ==  cst.EX_KNEERAISE:
                 score=self.knee_raise_detector.run(objectif)
                 scores[exo] = score
@@ -234,6 +237,9 @@ class App :
                 scores[exo] = score
             elif exo == cst.EX_MEDITATION_POSE :
                 score = self.meditation_pose_detector.run(objectif)
+                scores[exo] = score
+            elif exo ==  cst.EX_COBRA:
+                score=self.cobra_detector.run(objectif)
                 scores[exo] = score
         # Résultats de la séance :
         for exo, score in scores.items():
@@ -252,6 +258,7 @@ class App :
         self.tree_pose_detector.show_landmarks = self.show_landmarks
         self.meditation_pose_detector.show_landmarks = self.show_landmarks
         self.plank_detector.show_landmarks = self.show_landmarks
+        self.cobra_detector.show_landmarks = self.show_landmarks
 
         # Mise à jour du mode mirroir
         self.heels_2_buttocks_detector.flip_frame = self.mirror_mode
@@ -261,6 +268,7 @@ class App :
         self.tree_pose_detector.flip_frame = self.mirror_mode
         self.meditation_pose_detector.flip_frame = self.mirror_mode
         self.plank_detector.flip_frame = self.mirror_mode
+        self.cobra_detector.flip_frame = self.mirror_mode
 
     # -------------------------------------------------------------------------
     #                                                 Méthodes pour l'affichage
@@ -338,9 +346,9 @@ if __name__=='__main__':
             cst.EX_PUSH_UP: 7,
             cst.EX_TREEPOSE: 10,
             cst.EX_PLANK: 10,
-            cst.EX_MEDITATION_POSE: 25}
+            cst.EX_MEDITATION_POSE: 25,
+            cst.EX_COBRA: 10}
 
-    
     # Run de l'écran test :
     go = app.show_start_screen()
 
