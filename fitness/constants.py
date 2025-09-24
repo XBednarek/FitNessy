@@ -37,6 +37,7 @@ MOVE_UNKNWON = "unknown"
 MOVE_LEFT_UP_RIGHT_DOWN = "left up right down"
 MOVE_LEFT_DOWN_RIGHT_UP = "left down right up"
 MOVE_LEFT_DOWN_RIGHT_DOWN = "left down right down"
+MOVE_TREE_POSE = "tree pose"
 
 # COULEURS BGR
 BGR_NESSY_BLUE = (80, 48, 8)
@@ -49,3 +50,4 @@ WIN_NAME_PUSHUP = "Pompes !"
 WIN_NAME_HEELS2BUTTOCKS= "Talons fesses !"
 WIN_NAME_KNEERAISE = "Montees de genoux !"
 WIN_NAME_SQUATS = "Squats !"
+WIN_NAME_TREE_POSE = "Tree pose !"
