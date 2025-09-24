@@ -3,6 +3,8 @@ from .heels2buttocksdetector import Heels2ButtocksDetector
 from .kneeraisedetector import KneeRaiseDetector
 from .pushupdetector import PushUpDetector
 from .squatdetector import SquatDetector
+from .rectangle import Rectangle
+from .plankdetector import PlankDetector
 from . import constants as cst # <-- Pour utiliser les constantes
 # (Pour exécuter ce fichier, il faut donc faire proprement depuis l'extérieur du package)
 # Exemple : uv run python3 -m fitness.app
@@ -42,6 +44,8 @@ class App :
         self.squats_detector = SquatDetector(self.mediapipe_model, self.cap, self.verbose)
         # Montée de genou
         self.knee_raise_detector = KneeRaiseDetector(self.mediapipe_model, self.cap, self.verbose)
+        # planche
+        self.plank_detector = PlankDetector(self.mediapipe_model,self.cap,self.verbose)
 
         # Positions de cliques de la souris
         self.left_clicked_x = -1
@@ -77,46 +81,38 @@ class App :
         """Affichage de l'écran de démarrage de l'application"""
 
         # Variable de sortie :
-        go  = False
-
-        # Chargement de l'écran de démarrage
-        screen = cv2.imread('fitness/logo/screen_1.png')
-
-        # Zone de textes cliquables
-        button_go = {'rect_start': (295, 400),
-                     'rect_end': (345, 450),
-                     "line_color": cst.BGR_NESSY_BLUE,
-                     "line_thickness": 2,
-                     'text': 'GO !',
-                     "text_color": cst.BGR_NESSY_ORANGE,
-                     "text_font": cv2.FONT_HERSHEY_SIMPLEX,
-                     "text_thickness": 1,
-                     "text_font_scale": 0.5}
-
-        # Ajouts des zones cliquables
-        cv2.rectangle(screen, button_go['rect_start'], button_go['rect_end'], button_go['line_color'], button_go['line_thickness'])
-        text_position = ( int(0.8 * button_go['rect_start'][0] + 0.2 * button_go['rect_end'][0]),
-                          int(0.4 * button_go['rect_start'][1] + 0.6 * button_go['rect_end'][1]))
-        cv2.putText(screen, button_go['text'], text_position, button_go['text_font'], button_go['text_font_scale'], button_go['text_color'], button_go['text_thickness'], cv2.LINE_AA)
+        go = False
 
         # Gestion du callback de la souris
         win = cst.WIN_NAME_TITLE
         cv2.namedWindow(win)
         cv2.setMouseCallback(win, self.mouse_callback)
 
-        while  self.cap.isOpened(): 
+        # Chargement de l'écran de démarrage
+        screen = cv2.imread('fitness/logo/screen_1.png')
+
+        # Rectangles pour cliquer :
+        rect_go = Rectangle(screen, A=(0.35, 0.8), B=(0.45, 0.94), text='GO !',
+                                      line_color=cst.BGR_NESSY_BLUE, line_thickness=2,
+                                      text_color=cst.BGR_NESSY_ORANGE, text_font=cv2.FONT_HERSHEY_SIMPLEX,
+                                      text_thickness=1, text_font_scale=0.5)
+        
+        rect_quit = Rectangle(screen, A=(0.55, 0.8), B=(0.65, 0.94), text='Quit !',
+                                      line_color=cst.BGR_NESSY_BLUE, line_thickness=2,
+                                      text_color=cst.BGR_NESSY_ORANGE, text_font=cv2.FONT_HERSHEY_SIMPLEX,
+                                      text_thickness=1, text_font_scale=0.5)
+
+        while self.cap.isOpened(): 
 
             # Affichage
             cv2.imshow(win, screen)
 
             # Capture du clic
-            if (self.left_clicked_x >= button_go['rect_start'][0] and 
-                self.left_clicked_y >= button_go['rect_start'][1] and
-                self.left_clicked_x <= button_go['rect_end'][0] and 
-                self.left_clicked_y <= button_go['rect_end'][1] ) :
-                if self.verbose :
-                    print(button_go['text'])
+            if rect_go.contains(self.left_clicked_x, self.left_clicked_y):
                 go = True
+                break
+            
+            if rect_quit.contains(self.left_clicked_x, self.left_clicked_y):
                 break
             
             # Quitter au clavier
@@ -154,7 +150,9 @@ class App :
             elif exo ==  cst.EX_KNEERAISE:
                 score=self.knee_raise_detector.run(objectif)
                 scores[exo] = score
-
+            elif exo ==  cst.EX_PLANK :
+                score = self.plank_detector.run(objectif)
+                scores[exo] = score
         # Résultats de la séance :
         for exo, score in scores.items():
             print(f"Score : {score:.1f} {exo}.")
@@ -192,9 +190,10 @@ if __name__=='__main__':
     # Set d'exercice :
 
     exos = {cst.EX_KNEERAISE: 10,
-            cst.EX_HEELS2BUTTOCKS: 5,
-            cst.EX_SQUATS: 5,
-            cst.EX_PUSH_UP: 7}
+             cst.EX_HEELS2BUTTOCKS: 5,
+             cst.EX_SQUATS: 5,
+             cst.EX_PUSH_UP: 7}
+
     
     # Run de l'écran test :
     go = app.show_start_screen()
