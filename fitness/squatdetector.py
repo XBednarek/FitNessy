@@ -40,18 +40,18 @@ class SquatDetector(Detector):
         
         #retourner les hanches, les genou et les chevilles
 
-        landmarks=result.pose_landmarks.landmark
-        mp_pose=mp.solutions.pose
+        landmarks=result.pose_landmarks.landmark  # liste de 33 points de squelette
+        mp_pose=mp.solutions.pose # creer un reference de module de pose
         
 
         
-        # detections les hanches 
+        # detections les hanches gauche et droit 
         left_hip  = landmarks[mp_pose.PoseLandmark.LEFT_HIP]
         right_hip = landmarks[mp_pose.PoseLandmark.RIGHT_HIP]
 
-        #la visibilité des hanches dans quel coté visible
-        if left_hip.visibility > 0.5:
-            key_points["left_hip"] = (int(left_hip.x * w), int(left_hip.y * h))
+        #la visibilité des hanches dans quel coté visible gauche et droit 
+        if left_hip.visibility > 0.5: # on regarde si la hanche est suffisament visible 
+            key_points["left_hip"] = (int(left_hip.x * w), int(left_hip.y * h)) # normaliser la hauteur et largeur de points par le W et h d'image
         if right_hip.visibility > 0.5:
             key_points["right_hip"] = (int(right_hip.x * w), int(right_hip.y *h))
 
@@ -78,74 +78,29 @@ class SquatDetector(Detector):
             key_points["right_ankle"] = (right_ankle.x * w, right_ankle.y * h)
         
 
-        # si limage qui prend en milieu
-
+        # si l'image qui prend en milieu
+        # garder que le mouvement des hanches le plus fiable car les genous et les chevilles sont moins fiable 
         # pour les hanches : point central si les deux côtés sont visibles
         if "left_hip" in key_points and "right_hip" in key_points:
             lx, ly = key_points["left_hip"]
             rx, ry = key_points["right_hip"]
-            key_points["hip_center"] = ((lx + rx) / 2, (ly + ry) / 2)
+            key_points["hip_center"] = ((lx + rx) / 2, (ly + ry) / 2) # position horizontale moyenne des deux hanches (hauteur,largeur)
         elif "left_hip" in key_points:
             key_points["hip_center"] = key_points["left_hip"]
         elif "right_hip" in key_points:
             key_points["hip_center"] = key_points["right_hip"]
 
-        # pour les genoux : point central si les deux côtés sont visibles
-        if "left_knee" in key_points and "right_knee" in key_points:
-            lx, ly = key_points["left_knee"]
-            rx, ry = key_points["right_knee"]
-            key_points["knee_center"] = ((lx + rx) / 2, (ly + ry) / 2)
-        elif "left_knee" in key_points:
-            key_points["knee_center"] = key_points["left_knee"]
-        elif "right_knee" in key_points:
-            key_points["knee_center"] = key_points["right_knee"]
-
-        # pour les chevilles : même logique
-        if "left_ankle" in key_points and "right_ankle" in key_points:
-            lx, ly = key_points["left_ankle"]
-            rx, ry = key_points["right_ankle"]
-            key_points["ankle_center"] = ((lx + rx) / 2, (ly + ry) / 2)
-        elif "left_ankle" in key_points:
-            key_points["ankle_center"] = key_points["left_ankle"]
-        elif "right_ankle" in key_points:
-            key_points["ankle_center"] = key_points["right_ankle"]
             
         return key_points
     
-    # Masquage
-    def detect(self, positions: np.ndarray) -> str:
-        """Détecte une position dans les deux cotés droit et gauche"""
-
-        if positions is None or len(positions)<3:
-            return "non reconnu"
-        
-        hip = knee = ankle = None
-    
-        if positions and "right_hip" in positions and "right_knee" in positions and "right_ankle" in positions:
-            hip, knee, ankle = positions["right_hip"], positions["right_knee"], positions["right_ankle"]
-        elif positions and "left_hip" in positions and "left_knee" in positions and "left_ankle" in positions:
-            hip, knee, ankle = positions["left_hip"], positions["left_knee"], positions["left_ankle"]
-        else:
-            hip = knee = ankle = None
-
-        if hip and knee and ankle:
-            angle = calcul_angle(hip, knee, ankle)
-
-            if angle < 100:
-                self.stage = "down"
-                return "down"
-            elif angle > 160 and self.stage == "down":
-                self.stage = "up"
-                self.counter += 1
-                return "up"
-        return " non reconnu"
-
     def run(self, objective:int) -> int:
         """Run le décompte et renvoie le nombre de fois que l'exercice à été
            réalisé"""
         
-        mp_pose=mp.solutions.pose
-        pose = mp_pose.Pose()
+        mp_pose=mp.solutions.pose # initialiser la classe de pose qui detecte les points de la squellete
+        pose = mp_pose.Pose() # initialiser l'objet Pose pour pouvoir traiter des images
+        # result= pose.process(image) # traiter l'image et detecter les points clés du corps
+
         self.counter = 0
 
         if not self.cap.isOpened():
@@ -158,24 +113,35 @@ class SquatDetector(Detector):
                 print("Ignoring empty camera frame.")
                 continue
 
-            # Flip horizontal et convertir en RGB pour Mediapipe
-            frame = cv2.flip(frame, 1)
+            # convertir en RGB pour Mediapipe
+
             rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             results = pose.process(rgb_frame)
 
-            points = self.extract_position(results, frame.shape)
+            points = self.extract_position(results, frame.shape) # extraire les points important dans notre image
             
-            hip=knee=ankle=None
             # choisir le côté détecté
+            
             if points and "right_hip" in points and "right_knee" in points and "right_ankle" in points:
-                hip, knee, ankle = points["right_hip"], points["right_knee"], points["right_ankle"]
+                hip, knee, ankle = points["right_hip"], points["right_knee"], points["right_ankle"] # detecter le coté droit
             elif points and "left_hip" in points and "left_knee" in points and "left_ankle" in points:
-                hip, knee, ankle = points["left_hip"], points["left_knee"], points["left_ankle"]
-
-            if hip and knee and ankle:
+                hip, knee, ankle = points["left_hip"], points["left_knee"], points["left_ankle"] # detecter le coté gauche 
+            else:
+                hip=None
+                knee=None
+                ankle=None
+            
+            if hip and knee and ankle: # si les trois points sont dectectés, on calcule l'angle
                 angle = calcul_angle(hip, knee, ankle)
 
+                if angle < 130:
+                    self.stage = "down"
+                elif angle > 160 and self.stage == "down":
+                    self.stage = "up"
+                    self.counter += 1
+    
                 cv2.putText(frame, str(int(angle)), (int(knee[0])+20, int(knee[1])),cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,255,255), 2)
+
                 # afficher compteur
                 cv2.putText(frame, f'squat_counter: {self.counter}', (50,50),cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0,255,0), 3)
 
