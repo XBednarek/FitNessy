@@ -64,12 +64,12 @@ class Rectangle :
 
         # Ajouts du rectangle sur l'image
         cv2.rectangle(img, A, B, line_color, line_thickness)
-        text_position = ( int(0.8 * A[0] + 0.2 * B[0]), int(0.4 * A[1] + 0.6 * B[1]))
-
-        print(f"{A = }")
-        print(f"{B = }")
-        print(f"{text_position = }")
-
+  
+        # Calcul de la position du texte qui doit être au milieu du rectangle
+        text_width, text_height = cv2.getTextSize(text, text_font, text_font_scale, text_thickness)[0]
+        text_position = (int( (B[0]+A[0]) / 2) - int(text_width / 2), int((B[1]+A[1]) / 2) + int(text_height / 2))
+        
+        # Ajout du texte sur l'image
         cv2.putText(img, text, text_position, text_font, text_font_scale, text_color, text_thickness, cv2.LINE_AA)
 
         # Ajout des membres

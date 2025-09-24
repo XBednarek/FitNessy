@@ -2,6 +2,14 @@
 # par exemple les positions des points qui sont utiles
 import mediapipe as mp
 
+# Résolution de l'écran utilisée pour le devellopement
+SCREEN_H_DEV = 720
+SCREEN_W_DEV = 1280
+
+# Résolution de l'écran pour l'utilisateur
+SCREEN_H = 720
+SCREEN_W = 1280
+
 # POSITION DU CORPS : 
 
 # Coté droit
@@ -15,7 +23,6 @@ LEFT_SHOULDER = mp.solutions.pose.PoseLandmark.LEFT_SHOULDER
 LEFT_ELBOW = mp.solutions.pose.PoseLandmark.LEFT_ELBOW
 LEFT_WRIST = mp.solutions.pose.PoseLandmark.LEFT_WRIST
 LEFT_HIP = mp.solutions.pose.PoseLandmark.LEFT_HIP
-
 
 # Nom des exercices
 EX_PUSH_UP = "Pompes"
@@ -34,6 +41,7 @@ MOVE_LEFT_DOWN_RIGHT_DOWN = "left down right down"
 # COULEURS BGR
 BGR_NESSY_BLUE = (80, 48, 8)
 BGR_NESSY_ORANGE = (74, 153, 242)
+BGR_NESSY_LIGHT_GREY = (239, 239, 239)
 
 # Nom des fenêtres : ne pas mettre d'accent !
 WIN_NAME_TITLE = "Bienvenue"
