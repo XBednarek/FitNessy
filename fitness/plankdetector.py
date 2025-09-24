@@ -104,11 +104,38 @@ class PlankDetector(Detector):
                     color = (255, 95, 31)
                     # set up thikness
                     thickness = 2
-                    # add text on cv2 images at coordinate given
+                    # outline
+                    
+                    # outline color
+                    outline_color = (0, 0, 0)  # noir pour le contour
+                    outline_thickness = thickness + 2  # contour légèrement plus épais
+
+                    # --------- congrats message avec contour ------------
+
+                    # "Congratulations !"
+                    cv2.putText(image, "Congratulations !", (200, 100), font, font_scale, outline_color, outline_thickness, cv2.LINE_AA)
                     cv2.putText(image, "Congratulations !", (200, 100), font, font_scale, color, thickness, cv2.LINE_AA)
+
+                    # "you performed"
+                    cv2.putText(image, "you performed", (220, 150), font, font_scale, outline_color, outline_thickness, cv2.LINE_AA)
                     cv2.putText(image, "you performed", (220, 150), font, font_scale, color, thickness, cv2.LINE_AA)
+
+                    # "{objective} sec."
+                    cv2.putText(image, f"{objective} sec.", (250, 225), font, font_scale+1, outline_color, outline_thickness+1, cv2.LINE_AA)
                     cv2.putText(image, f"{objective} sec.", (250, 225), font, font_scale+1, color, thickness+1, cv2.LINE_AA)
-                    cv2.putText(image, "of plank !", (180, 275), font, font_scale, color, thickness, cv2.LINE_AA)
+
+                    # "of plank !"
+                    cv2.putText(image, "of plank !", (220, 275), font, font_scale, outline_color, outline_thickness, cv2.LINE_AA)
+                    cv2.putText(image, "of plank !", (220, 275), font, font_scale, color, thickness, cv2.LINE_AA)
+
+                    # try confeti
+
+                    for _ in range(200):  
+                        x = np.random.randint(0, image.shape[1])
+                        y = np.random.randint(0, image.shape[0])
+                        col = (np.random.randint(0,255), np.random.randint(0,255), np.random.randint(0,255))
+                        cv2.circle(image, (x, y), 3, col, -1)
+
                     cv2.imshow(cst.WIN_NAME_PLANK, image)
                     cv2.waitKey(5000)
                     break
