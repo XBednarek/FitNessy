@@ -175,11 +175,9 @@ class SquatDetector(Detector):
             if hip and knee and ankle:
                 angle = calcul_angle(hip, knee, ankle)
 
-                cv2.putText(frame, str(int(angle)), (int(knee[0])+20, int(knee[1])),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,255,255), 2)
+                cv2.putText(frame, str(int(angle)), (int(knee[0])+20, int(knee[1])),cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,255,255), 2)
                 # afficher compteur
-                cv2.putText(frame, f'squat_counter: {self.counter}', (50,50),
-                            cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0,255,0), 3)
+                cv2.putText(frame, f'squat_counter: {self.counter}', (50,50),cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0,255,0), 3)
 
                 # dessiner les points
                 for p in [hip, knee, ankle]:
@@ -188,34 +186,22 @@ class SquatDetector(Detector):
 
             cv2.imshow(cst.WIN_NAME_SQUATS, frame)
 
+
             if cv2.waitKey(5) & 0xFF == ord('q'):  # q pour quitter
+                break
+      
+            if self.counter >= objective:
                 break
 
         # Destruction de la fenetre
         cv2.destroyWindow(cst.WIN_NAME_SQUATS)
 
-        return self.counter
 
+        return self.counter
 
 if __name__=='__main__':
     # Tests
     print("-"*80)
     print(" * Tests pour la classe SquatDetector *")
     print("-"*80)
-    from .squatdetector import SquatDetector
-    import mediapipe as mp
-    import cv2
-    import matplotlib.pyplot as plt
-    import numpy as np
-
-
-
-    mp_pose=mp.solutions.pose
-    pose_model= mp_pose.Pose()
-
-    detector = SquatDetector(mediapipe_model=pose_model, cap=0, verbose=True)
-
-    # Lancer le compteur
-
-    total_squats = detector.run(objective=10)  # objective est optionnel
-    print(f"Nombre total de squats réalisés : {total_squats}")
+    
