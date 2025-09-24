@@ -11,6 +11,7 @@ RIGHT_WRIST = mp.solutions.pose.PoseLandmark.RIGHT_WRIST
 RIGHT_HIP = mp.solutions.pose.PoseLandmark.RIGHT_HIP
 RIGHT_ANKLE = mp.solutions.pose.PoseLandmark.RIGHT_ANKLE
 RIGHT_KNEE = mp.solutions.pose.PoseLandmark.RIGHT_KNEE
+RIGHT_FOOT_INDEX = mp.solutions.pose.PoseLandmark.RIGHT_FOOT_INDEX
 
 # Coté gauche
 LEFT_SHOULDER = mp.solutions.pose.PoseLandmark.LEFT_SHOULDER
@@ -19,6 +20,7 @@ LEFT_WRIST = mp.solutions.pose.PoseLandmark.LEFT_WRIST
 LEFT_HIP = mp.solutions.pose.PoseLandmark.LEFT_HIP
 LEFT_ANKLE = mp.solutions.pose.PoseLandmark.LEFT_ANKLE
 LEFT_KNEE = mp.solutions.pose.PoseLandmark.LEFT_KNEE
+LEFT_FOOT_INDEX = mp.solutions.pose.PoseLandmark.LEFT_FOOT_INDEX
 
 
 # Nom des exercices
