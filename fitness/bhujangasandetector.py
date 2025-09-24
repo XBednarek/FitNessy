@@ -26,8 +26,7 @@ class Bhujangasandetector(Detector):
     # extract les points important pour detecter le mouvement de youga
 
     def extract_points(self,result, image_shape:tuple) -> np.ndarray:
-        self.timer_start= None # le moment ou la posture 'up' commence
-        self.timer_duration=0 # durée totale en seconds
+        # durée totale en seconds
 
         h,w, _ = image_shape
         points_yoga={}
@@ -61,7 +60,7 @@ class Bhujangasandetector(Detector):
             points_yoga["right_ankle"] = (int(right_ankle.x * w), int(right_ankle.y *h))
 
         # 3) detection des epaules
-        left_shoulder  = landmarks[mp_pose.PoseLandmark.LEFT_SHOULER]
+        left_shoulder  = landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER]
         right_shoulder = landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER]
         if left_shoulder.visibility > 0.5:  
             points_yoga["left_shoulder"] = (int(left_shoulder.x * w), int(left_shoulder.y * h)) 
@@ -70,8 +69,8 @@ class Bhujangasandetector(Detector):
         
         # 4) detection des yeux ( reference de la position de la tete )
 
-        top_head = landmarks[mp_pose.PoseLandmark.TOP_HEAD]
-        points_yoga["top_head"] = (int(top_head.x * w), int(top_head.y *h))
+        nose = landmarks[mp_pose.PoseLandmark.NOSE]
+        points_yoga["top_head"] = (int(nose.x * w), int(nose.y *h))
 
 
         return points_yoga
@@ -81,7 +80,8 @@ class Bhujangasandetector(Detector):
     def run(self, objective:int) -> int:
         """Run compter le temps que une persone a fai ce mouvement et renvoie le temps finale de l'exercice de yoga à été
         réalisé"""
-        
+        self.timer_start= None # le moment ou la posture 'up' commence
+        self.timer_duration=0
         mp_pose=mp.solutions.pose # initialiser la classe de pose qui detecte les points de la squellete
         pose = mp_pose.Pose() # initialiser l'objet Pose pour pouvoir traiter des images
         # result= pose.process(image) # traiter l'image et detecter les points clés du corps
@@ -105,39 +105,40 @@ class Bhujangasandetector(Detector):
             
             # choisir le côté détecté
             
-            if points and "right_hip" in points and "right_shoulder" in points and "right_ankle" in points and "top_head" in points:
-                hip, shoulder, ankle, head = points["right_hip"], points["right_shoulder"], points["right_ankle"], points["top_head"] # detecter le coté droit
-            elif points and "left_hip" in points and "left_shoulder" in points and "left_ankle" in points and "top_head" in points:
-                hip, shoulder, ankle, head = points["left_hip"], points["left_shoulder"], points["left_ankle"],points["top_head"] # detecter le coté gauche 
+            if points and "right_hip" in points and "right_shoulder" in points and "right_ankle" in points:
+                hip, shoulder, ankle = points["right_hip"], points["right_shoulder"], points["right_ankle"] # detecter le coté droit
+            elif points and "left_hip" in points and "left_shoulder" in points and "left_ankle" in points :
+                hip, shoulder, ankle = points["left_hip"], points["left_shoulder"], points["left_ankle"] # detecter le coté gauche 
             else:
                 hip=None
                 shoulder=None
                 ankle=None
-                head=None
+             
             
-            if hip and shoulder and ankle and head: # si les trois points sont dectectés, on calcule l'angle
-                angle_head_shoulder_hip = calcul_angle(head,shoulder,hip ) # calculer l'angle entre la tete et les epaules et les hanches
+            if hip and shoulder and ankle : # si les trois points sont dectectés, on calcule l'angle
                 angle_soulder_hip_ankle = calcul_angle(shoulder,hip,ankle) # calculer l'angle entre les epaules, les hanches et les chevilles
 
-                if angle_head_shoulder_hip > 150 and angle_soulder_hip_ankle <=100:
+                if  angle_soulder_hip_ankle <= 100:
                     self.stage = "up"
-                    self.timer_start=time.time()
+                    if self.timer_start is None:
+                        self.timer_start=time.time()
 
                 else:
-                    self.timer_duration = time.time()-self.timer_start
+                    if self.timer_start is not None:
+                        self.timer_duration = time.time() - self.timer_start
     
-                cv2.putText(frame, str(int(angle_head_shoulder_hip)), (int(shoulder[0])+20, int(shoulder[1])),cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,255,255), 2)
                 cv2.putText(frame, str(int(angle_soulder_hip_ankle)), (int(hip[0])+20, int(hip[1])),cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,255,255), 2)
 
                 # afficher compteur
-                cv2.putText(frame, f'aconda yoga Timer: {self.timer_duration}', (50,100),cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0,255,0), 3)
+                cv2.putText(frame, f'aconda yoga Timer: {round(self.timer_duration,2)}', (50,100),cv2.FONT_HERSHEY_SIMPLEX, 1.2, (18,18,18), 3)
+
 
                 # dessiner les points
-                for p in [hip, head,shoulder, ankle]:
+                for p in [hip,shoulder, ankle]:
                     if p is not None:
                         cv2.circle(frame, (int(p[0]), int(p[1])), 10, (0,255,255), -1)
 
-            cv2.imshow(cst.WIN_NAME_SQUATS, frame)
+            cv2.imshow(cst.WIN_NAME_COBRA, frame)
 
 
             if cv2.waitKey(5) & 0xFF == ord('q'):  # q pour quitter
@@ -147,10 +148,10 @@ class Bhujangasandetector(Detector):
                 break
 
         # Destruction de la fenetre
-        cv2.destroyWindow(cst.WIN_NAME_SQUATS)
+        cv2.destroyWindow(cst.WIN_NAME_COBRA)
 
 
-        return self.counter
+        return self.timer_duration
 
 if __name__=='__main__':
     # Tests
@@ -158,5 +159,27 @@ if __name__=='__main__':
     print(" * Tests pour la classe SquatDetector *")
     print("-"*80)
 
+    # import cv2
+    # import mediapipe as mp
 
+    # # Initialiser la webcam
+    # cap = cv2.VideoCapture(0)
+    # if not cap.isOpened():
+    #     print("Erreur : impossible d'ouvrir la webcam")
+    #     exit()
+
+    # # Créer une instance de Bhujangasandetector
+    # detector = Bhujangasandetector(mediapipe_model=mp.solutions.pose.Pose(), cap=cap, verbose=True)
+
+    # # Objectif : temps en secondes pour maintenir la posture
+    # objectif_temps = 10
+
+    # # Lancer le détecteur (compteur et timer)
+    # total_time = detector.run(objective=objectif_temps)
+
+    # print(f"Exercice terminé ! Temps total enregistré : {total_time} secondes")
+
+    # # Libération de la webcam
+    # cap.release()
+    # cv2.destroyAllWindows()
 

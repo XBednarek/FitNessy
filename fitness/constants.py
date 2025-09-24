@@ -21,13 +21,14 @@ LEFT_ANKLE = mp.solutions.pose.PoseLandmark.LEFT_ANKLE
 LEFT_KNEE = mp.solutions.pose.PoseLandmark.LEFT_KNEE
 
 
+
 # Nom des exercices
 EX_PUSH_UP = "Pompes"
 EX_HEELS2BUTTOCKS = "Talons-fesses"
 EX_KNEERAISE = "Montées de genoux"
 EX_SQUATS = "Squats"
 EX_PLANK = "Planche"
-
+EX_COBRA="cobra"
 # MOUVEMENTS 
 MOVE_UP = "move up"
 MOVE_DOWN = "move down"
@@ -48,5 +49,6 @@ WIN_NAME_HEELS2BUTTOCKS= "Talons fesses !"
 WIN_NAME_KNEERAISE = "Montees de genoux !"
 WIN_NAME_SQUATS = "Squats !"
 WIN_NAME_PLANK = "Planche!"
+WIN_NAME_COBRA = "Cobra!"
 WIN_NAME_TREE_POSE = "Tree pose !"
 
