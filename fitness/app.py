@@ -4,6 +4,7 @@ from .kneeraisedetector import KneeRaiseDetector
 from .pushupdetector import PushUpDetector
 from .squatdetector import SquatDetector
 from .rectangle import Rectangle
+from .plankdetector import PlankDetector
 from . import constants as cst # <-- Pour utiliser les constantes
 # (Pour exécuter ce fichier, il faut donc faire proprement depuis l'extérieur du package)
 # Exemple : uv run python3 -m fitness.app
@@ -43,6 +44,8 @@ class App :
         self.squats_detector = SquatDetector(self.mediapipe_model, self.cap, self.verbose)
         # Montée de genou
         self.knee_raise_detector = KneeRaiseDetector(self.mediapipe_model, self.cap, self.verbose)
+        # planche
+        self.plank_detector = PlankDetector(self.mediapipe_model,self.cap,self.verbose)
 
         # Positions de cliques de la souris
         self.left_clicked_x = -1
@@ -147,7 +150,9 @@ class App :
             elif exo ==  cst.EX_KNEERAISE:
                 score=self.knee_raise_detector.run(objectif)
                 scores[exo] = score
-
+            elif exo ==  cst.EX_PLANK :
+                score = self.plank_detector.run(objectif)
+                scores[exo] = score
         # Résultats de la séance :
         for exo, score in scores.items():
             print(f"Score : {score:.1f} {exo}.")
@@ -185,9 +190,10 @@ if __name__=='__main__':
     # Set d'exercice :
 
     exos = {cst.EX_KNEERAISE: 10,
-            cst.EX_HEELS2BUTTOCKS: 5,
-            cst.EX_SQUATS: 5,
-            cst.EX_PUSH_UP: 7}
+             cst.EX_HEELS2BUTTOCKS: 5,
+             cst.EX_SQUATS: 5,
+             cst.EX_PUSH_UP: 7}
+
     
     # Run de l'écran test :
     go = app.show_start_screen()
