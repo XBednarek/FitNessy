@@ -124,6 +124,8 @@ class MoveDetector(Detector):
     def displayScore(self) :
         """Affichage du score sur l'image"""
 
+        # TODO : mettre en positions relatives !
+
         # Define font spec
         font = cv2.FONT_HERSHEY_SIMPLEX
         font_scale = 0.5
