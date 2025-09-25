@@ -1,5 +1,5 @@
 # Import relatif dans le package :
-from .detector import Detector
+from .movedetector import MoveDetector
 from . import constants as cst # <-- Pour utiliser les constantes
 from .tools import calc_distance
 # (Pour exécuter ce fichier, il faut donc faire proprement depuis l'extérieur du package)
@@ -9,123 +9,29 @@ from .tools import calc_distance
 import numpy as np
 import cv2
 
-class Heels2ButtocksDetector(Detector):
+class Heels2ButtocksDetector(MoveDetector):
 
     # -------------------------------------------------------------------------
     #                                                              Constructeur
     # -------------------------------------------------------------------------
 
-    def __init__(self, mediapipe_model, cap, verbose:bool = False, show_landmark:bool = False, windows_name:str = cst.WIN_NAME_HEELS2BUTTOCKS) -> None:
+    def __init__(self, mediapipe_model, cap, verbose:bool = False,
+                                             show_landmark:bool = False,
+                                             windows_name:str = cst.WIN_NAME_HEELS2BUTTOCKS) -> None:
         """Constructeur"""
         # Appel explicite du constructeur parent
-        super().__init__(mediapipe_model, cap, verbose, show_landmark, windows_name)
-
+        super().__init__(mediapipe_model, cap, verbose=verbose,
+                                               show_landmark=show_landmark,
+                                               windows_name=windows_name,
+                                               reward_string = "heels to buttocks !",
+                                               movement_cycle = ["left_up_right_down", "left_down_right_up"],
+                                               exo_name = "Heels to buttocks")
 
     # -------------------------------------------------------------------------
     #                                                                  Méthodes
     # -------------------------------------------------------------------------
-    
-    # Masquage
-    def run(self, objective:int) -> float:
-        """Run le décompte et renvoie le nombre de fois que l'exercice à été
-           réalisé"""
-        
-        heels_butt_counter = 0
-        move = cst.MOVE_UNKNWON
-        
-        while self.cap.isOpened():
 
-            # Process de l'image de la webcam
-            success = self.read_and_process()
-        
-            if not success :
-                if self.verbose :
-                    print("Ignoring empty camera frame.")
-                continue
-
-            # Récupération de l'array des positions
-            positions = self.getPositions()
-            
-            # Detect :
-            detection = "None"
-            if positions is not None :
-                detection = self.detect(positions)
-
-                if self.verbose :
-                    print(f"{detection =}")
-
-                # Count
-                # detection = detected move
-                # move = next move to perform
-                if detection == "left_up_right_down":
-                    if move == cst.MOVE_UNKNWON :
-                        move = cst.MOVE_LEFT_DOWN_RIGHT_UP
-                    elif move == cst.MOVE_LEFT_UP_RIGHT_DOWN :
-                        heels_butt_counter += 0.5
-                        move = cst.MOVE_LEFT_DOWN_RIGHT_UP
-                elif detection == "left_down_right_up":
-                    if move == cst.MOVE_UNKNWON :
-                        move = cst.MOVE_LEFT_UP_RIGHT_DOWN
-                    elif move == cst.MOVE_LEFT_DOWN_RIGHT_UP :
-                        heels_butt_counter += 0.5
-                        move = cst.MOVE_LEFT_UP_RIGHT_DOWN
-
-            
-            # Show counter :
-            font = cv2.FONT_HERSHEY_SIMPLEX
-            font_scale = 0.5
-            color = (0, 0, 0)
-            thickness = 1
-            
-            # Define positions for the text
-            position = (10, 20)
-            position2 = (10, 40) 
-            position3 = (10, 60)
-
-            text_count = f"Heels-butt #: {heels_butt_counter}"
-            text_status = f"Move status: {move}"
-            text_lastdetect = f"Last: {detection}"
-            cv2.putText(self.image, text_count, position, font, font_scale, color, thickness, cv2.LINE_AA)
-            cv2.putText(self.image, text_status, position2, font, font_scale, color, thickness, cv2.LINE_AA)
-            cv2.putText(self.image, text_lastdetect, position3, font, font_scale, color, thickness, cv2.LINE_AA)
-
-            if heels_butt_counter >= objective :
-                font = cv2.FONT_HERSHEY_SIMPLEX
-                font_scale = 1
-                color = (255, 95, 31)
-                thickness = 2
-                text1 = "Congratulations !"
-                position1 = (200, 100)
-                text2 = "you performed"
-                position2 = (220, 150)
-                text3 = f"{objective}"
-                position3 = (300, 225)
-                text4 = "heels-to-buttocks !"
-                position4 = (180, 275)
-                cv2.putText(self.image, text1, position1, font, font_scale, color, thickness, cv2.LINE_AA)
-                cv2.putText(self.image, text2, position2, font, font_scale, color, thickness, cv2.LINE_AA)
-                cv2.putText(self.image, text3, position3, font, 2, color, 3, cv2.LINE_AA)
-                cv2.putText(self.image, text4, position4, font, font_scale, color, thickness, cv2.LINE_AA)
-
-            # Affichage
-            self.imshow()
-
-            # Quitte si l'objectif est atteint
-            if heels_butt_counter >= objective :
-                cv2.waitKey(5000)
-                break
-            
-            # Quitte si on appuie sur q
-            if cv2.waitKey(5) & 0xFF == ord('q'):
-                break
-        
-        # On quitte
-        self.close()
-        
-        return heels_butt_counter
-
-
-    # Masquage
+    # Implémentation de la méthode abstraite de la classe mère Detector
     def detect(self, positions: np.ndarray) -> str:
         """Détecte une position"""
         if self.heels2buttocks_left_up_detector(positions) and self.heels2buttocks_right_down_detector(positions):
