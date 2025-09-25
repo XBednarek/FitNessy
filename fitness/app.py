@@ -132,11 +132,11 @@ class App :
         print(f"{screen.shape =}")
         screen = to_uint8(screen)
         # 3 - Rectangles pour cliquer :
-        rect_go = Rectangle(screen, A=(0.37, 0.8), B=(0.46, 0.9), text='GO !',
+        rect_go = Rectangle(screen, A=(0.25, 0.8), B=(0.50, 0.9), text='Choisir Niveau!',
                                       line_color=cst.BGR_NESSY_ORANGE, line_thickness=2,
                                       text_color=cst.BGR_NESSY_ORANGE, text_font=cv2.FONT_HERSHEY_SIMPLEX,
                                       text_thickness=2, text_font_scale=1*self.screen_scale)
-        rect_quit = Rectangle(screen, A=(0.54, 0.8), B=(0.63, 0.9), text='Quit',
+        rect_quit = Rectangle(screen, A=(0.55, 0.8), B=(0.80, 0.9), text='Quit',
                                       line_color=cst.BGR_NESSY_BLUE, line_thickness=2,
                                       text_color=cst.BGR_NESSY_BLUE, text_font=cv2.FONT_HERSHEY_SIMPLEX,
                                       text_thickness=2, text_font_scale=1*self.screen_scale)
@@ -202,6 +202,99 @@ class App :
         cv2.destroyWindow(win)
 
         return go
+
+    def show_difficulty_screen(self) -> str:
+        """Affichage de l'écran pour choisir son niveaux de dificulté"""
+        # Gestion du callback de la souris
+        choice = None
+        win = cst.WIN_NAME_TITLE
+        cv2.namedWindow(win)
+        cv2.setMouseCallback(win, self.mouse_callback)
+
+        
+        # Création de l'écran d'acceuil :
+        # 1 - Page blanche : 
+        screen = np.full((self.screen_height, self.screen_width, 3), 1., dtype = np.float32)
+ 
+        print(f"{screen.shape =}")
+        screen = to_uint8(screen)
+        # creat the 3 buttons
+
+        rect_go = Rectangle(screen, A=(0.37, 0.8), B=(0.46, 0.9), text='Go!',
+                                      line_color=cst.BGR_NESSY_ORANGE, line_thickness=2,
+                                      text_color=cst.BGR_NESSY_ORANGE, text_font=cv2.FONT_HERSHEY_SIMPLEX,
+                                      text_thickness=2, text_font_scale=1*self.screen_scale)
+        rect_quit = Rectangle(screen, A=(0.54, 0.8), B=(0.63, 0.9), text='Quit',
+                                      line_color=cst.BGR_NESSY_BLUE, line_thickness=2,
+                                      text_color=cst.BGR_NESSY_BLUE, text_font=cv2.FONT_HERSHEY_SIMPLEX,
+                                      text_thickness=2, text_font_scale=1*self.screen_scale)
+        
+        rect_facile = Rectangle(screen, A=(0.3, 0.4), B=(0.45, 0.5), text='Facile',
+                                line_color=cst.DIFFICULTY_MID_GREY, line_thickness=2,
+                                text_color=cst.DIFFICULTY_MID_GREY, text_font=cv2.FONT_HERSHEY_SIMPLEX,
+                                text_thickness=2, text_font_scale=1*self.screen_scale)
+        rect_moyen = Rectangle(screen, A=(0.5, 0.4), B=(0.65, 0.5), text='Moyen',
+                                line_color=cst.DIFFICULTY_MID_GREY, line_thickness=2,
+                                text_color=cst.DIFFICULTY_MID_GREY, text_font=cv2.FONT_HERSHEY_SIMPLEX,
+                                text_thickness=2, text_font_scale=1*self.screen_scale)
+        rect_difficile = Rectangle(screen, A=(0.7, 0.4), B=(0.85, 0.5), text='Difficile',
+                                line_color=cst.DIFFICULTY_MID_GREY, line_thickness=2,
+                                text_color=cst.DIFFICULTY_MID_GREY, text_font=cv2.FONT_HERSHEY_SIMPLEX,
+                                text_thickness=2, text_font_scale=1*self.screen_scale)
+        
+
+        while self.cap.isOpened():
+            current_screen = screen.copy()
+            cv2.imshow(win, current_screen)
+
+            rect_facile = Rectangle(current_screen, A=(0.3, 0.4), B=(0.45, 0.5), text='Facile',
+                                line_color=cst.BGR_NESSY_ORANGE if choice == "facile" else cst.DIFFICULTY_MID_GREY, line_thickness=2,
+                                text_color=cst.BGR_NESSY_ORANGE if choice == "facile" else cst.DIFFICULTY_MID_GREY,
+                                text_font=cv2.FONT_HERSHEY_SIMPLEX, text_thickness=2,
+                                text_font_scale=1*self.screen_scale)
+            rect_moyen = Rectangle(current_screen, A=(0.5, 0.4), B=(0.65, 0.5), text='Moyen',
+                                line_color=cst.BGR_NESSY_ORANGE if choice == "moyen" else cst.DIFFICULTY_MID_GREY, line_thickness=2,
+                                text_color=cst.BGR_NESSY_ORANGE if choice == "moyen" else cst.DIFFICULTY_MID_GREY,
+                                text_font=cv2.FONT_HERSHEY_SIMPLEX, text_thickness=2,
+                                text_font_scale=1*self.screen_scale)
+            rect_difficile = Rectangle(current_screen, A=(0.7, 0.4), B=(0.85, 0.5), text='Difficile',
+                                line_color=cst.BGR_NESSY_ORANGE if choice == "difficile" else cst.DIFFICULTY_MID_GREY, line_thickness=2,
+                                text_color=cst.BGR_NESSY_ORANGE if choice == "difficile" else cst.DIFFICULTY_MID_GREY,
+                                text_font=cv2.FONT_HERSHEY_SIMPLEX, text_thickness=2,
+                                text_font_scale=1*self.screen_scale)
+
+
+            cv2.imshow(win, current_screen)
+
+            # choisir un niveaux 
+            if rect_facile.contains(self.left_clicked_x, self.left_clicked_y):
+                choice = "facile"
+                self.left_clicked_x = -1
+                self.left_clicked_y = -1
+            elif rect_moyen.contains(self.left_clicked_x, self.left_clicked_y):
+                choice = "moyen"
+                self.left_clicked_x = -1
+                self.left_clicked_y = -1
+            elif rect_difficile.contains(self.left_clicked_x, self.left_clicked_y):
+                choice = "difficile"
+                self.left_clicked_x = -1
+                self.left_clicked_y = -1
+
+            # si on clique sur GO ET que='un choix à été fait
+            elif rect_go.contains(self.left_clicked_x, self.left_clicked_y) and choice is not None:
+                
+                break
+
+            # si on clique sur le bouton quité
+            elif rect_quit.contains(self.left_clicked_x, self.left_clicked_y):
+                choice = None
+                break
+
+            if cv2.waitKey(5) & 0xFF == ord('q'):
+                break
+
+        cv2.destroyWindow(win)
+        return choice
 
     # Lancement d'un set d'exercice
     def run_exercice_session(self, exercices:dict) :
@@ -338,16 +431,6 @@ if __name__=='__main__':
     print(" * Création *")
     app = App(verbose=True)
 
-    # Set d'exercice :
-
-    exos = {cst.EX_KNEERAISE: 10,
-            cst.EX_HEELS2BUTTOCKS: 5,
-            cst.EX_SQUATS: 5,
-            cst.EX_PUSH_UP: 7,
-            cst.EX_TREEPOSE: 10,
-            cst.EX_PLANK: 10,
-            cst.EX_MEDITATION_POSE: 25,
-            cst.EX_COBRA: 10}
 
     # Run de l'écran test :
     go = app.show_start_screen()
@@ -357,6 +440,32 @@ if __name__=='__main__':
     print("-"*10)
     print(" * Run d'exercices *")
     if go :
-        app.run_exercice_session(exos)
+        
+        # choose dificulty
+        difficulty = app.show_difficulty_screen()
+
+        # according to dificulty, different set of exercice
+        if difficulty == "facile":
+            exos = {cst.EX_SQUATS: 3, cst.EX_PUSH_UP: 3,cst.EX_PLANK: 5}
+
+        elif difficulty == "moyen":
+            exos = {cst.EX_SQUATS: 5, 
+                    cst.EX_PUSH_UP: 5,
+                    cst.EX_PLANK: 10,
+                    cst.EX_KNEERAISE: 5,
+                    cst.EX_HEELS2BUTTOCKS: 5}
+
+        elif difficulty == "difficile":
+            exos = {cst.EX_SQUATS: 8, 
+                    cst.EX_PUSH_UP: 8,
+                    cst.EX_PLANK: 15,
+                    cst.EX_KNEERAISE: 8,
+                    cst.EX_HEELS2BUTTOCKS: 8,
+                    cst.EX_TREEPOSE: 10,
+                    cst.EX_MEDITATION_POSE: 25,
+                    cst.EX_COBRA: 10}
+
+        if difficulty :
+            app.run_exercice_session(exos)
 
     
