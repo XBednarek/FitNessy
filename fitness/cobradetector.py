@@ -11,7 +11,7 @@ import mediapipe as mp
 import cv2
 import time
 
-class Bhujangasandetector(Detector):
+class Cobradetector(Detector):
 
 
     def __init__(self, mediapipe_model, cap, verbose:bool = False, show_landmark:bool = False, windows_name:str = cst.WIN_NAME_COBRA) -> None:
@@ -166,7 +166,7 @@ if __name__=='__main__':
         exit()
 
     # Créer une instance de Bhujangasandetector
-    detector = Bhujangasandetector(mediapipe_model=mp.solutions.pose.Pose(), cap=cap, verbose=True)
+    detector = Cobradetector(mediapipe_model=mp.solutions.pose.Pose(), cap=cap, verbose=True)
 
     # Objectif : temps en secondes pour maintenir la posture
     objectif_temps = 10
