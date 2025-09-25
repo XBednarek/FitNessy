@@ -20,60 +20,6 @@ class Cobradetector(Detector):
         super().__init__(mediapipe_model, cap, verbose, show_landmark, windows_name)
 
     # -------------------------------------------------------------------------
-    #                                                                  Méthodes
-    # -------------------------------------------------------------------------
-    # extract les points important pour detecter le mouvement de youga
-
-    def extract_points(self,result, image_shape:tuple) -> np.ndarray:
-        """
-        extraires les points qui permet d'identifier notre mouvement
-        Args:
-            result (_type_): result=Pose.process(image): c'est le sous-module qui a tous les outils (hands,......)
-            image_shape (tuple): extraire la hauteur et largeur de notre image pour normaliser les points
-
-        Returns:
-            np.ndarray: _description_
-        """
-        h,w,_=image_shape
-        h,w, _ = image_shape
-        points_yoga={}
-
-        if not result.pose_landmarks:
-            # Draw landmarks on the image
-            #mp.solutions.drawing_utils.draw_landmarks(image, result.pose_landmarks, mp_pose.POSE_CONNECTIONS)
-            return None
-
-        
-        landmarks=result.pose_landmarks.landmark # 33 points detecter au niveau en squelette
-
-        # 1) detections les hanches gauche et droit 
-        left_hip  = landmarks[cst.LEFT_HIP]
-        right_hip = landmarks[cst.RIGHT_HIP]
-        #la visibilité des hanches dans quel coté visible gauche et droit 
-        if left_hip.visibility > 0.5: # on regarde si la hanche est suffisament visible 
-            points_yoga["left_hip"] = (int(left_hip.x * w), int(left_hip.y * h)) # normaliser la hauteur et largeur de points par le W et h d'image
-        if right_hip.visibility > 0.5:
-            points_yoga["right_hip"] = (int(right_hip.x * w), int(right_hip.y *h))
-
-        # 2) detection des chevilles
-        left_ankle  = landmarks[cst.LEFT_ANKLE]
-        right_ankle = landmarks[cst.RIGHT_ANKLE]
-        if left_ankle.visibility > 0.5:  
-            points_yoga["left_ankle"] = (int(left_ankle.x * w), int(left_ankle.y * h)) 
-        if right_ankle.visibility > 0.5:
-            points_yoga["right_ankle"] = (int(right_ankle.x * w), int(right_ankle.y *h))
-
-        # 3) detection des epaules
-        left_shoulder  = landmarks[cst.LEFT_SHOULDER]
-        right_shoulder = landmarks[cst.RIGHT_SHOULDER]
-        if left_shoulder.visibility > 0.5:  
-            points_yoga["left_shoulder"] = (int(left_shoulder.x * w), int(left_shoulder.y * h)) 
-        if right_ankle.visibility > 0.5:
-            points_yoga["right_shoulder"] = (int(right_shoulder.x * w), int(right_shoulder.y *h))
-
-        return points_yoga
-
-
  
     def run(self, objective:int) -> float:
         """
@@ -91,22 +37,32 @@ class Cobradetector(Detector):
 
         while self.cap.isOpened():
 
-            # Process de l'image de la webcam
+            # Process de l'image de la webcam:
             success = self.read_and_process()
         
             if not success :
                 if self.verbose :
                     print("Ignoring empty camera frame.")
                 continue
+            
 
-            points = self.extract_points(self.results, self.frame.shape) # extraire les points important dans notre image
+            # detection via la visibility :
+            points_to_check= {
+                    "left_hip": cst.LEFT_HIP,
+                    "right_hip": cst.RIGHT_HIP,
+                    "left_ankle": cst.LEFT_ANKLE,
+                    "right_ankle": cst.RIGHT_ANKLE,
+                    "left_shoulder":cst.LEFT_SHOULDER,
+                    "right_shoulder":cst.RIGHT_SHOULDER
+                }
             
-            # choisir quel côté détecté
+            points_visibles=self.get_points_visibles(points_indices=points_to_check,image_shape=self.frame.shape)
             
-            if points and "right_hip" in points and "right_shoulder" in points and "right_ankle" in points:
-                hip, shoulder, ankle = points["right_hip"], points["right_shoulder"], points["right_ankle"] # detecter le coté droit
-            elif points and "left_hip" in points and "left_shoulder" in points and "left_ankle" in points :
-                hip, shoulder, ankle = points["left_hip"], points["left_shoulder"], points["left_ankle"] # detecter le coté gauche 
+            # quel coté est detecter ?
+            if points_visibles and "right_hip" in points_visibles and "right_shoulder" in points_visibles and "right_ankle" in points_visibles:
+                hip, shoulder, ankle = points_visibles["right_hip"], points_visibles["right_shoulder"], points_visibles["right_ankle"] #  le coté droit
+            elif points_visibles and "left_hip" in points_visibles and "left_shoulder" in points_visibles and "left_ankle" in points_visibles :
+                hip, shoulder, ankle = points_visibles["left_hip"], points_visibles["left_shoulder"], points_visibles["left_ankle"] #  le coté gauche 
             else:
                 hip=None
                 shoulder=None
@@ -132,7 +88,7 @@ class Cobradetector(Detector):
 
 
                 # dessiner les points
-                for p in [hip,shoulder, ankle]:
+                for p in [hip, shoulder, ankle]:
                     if p is not None:
                         cv2.circle(self.image, (int(p[0]), int(p[1])), 10, (0,255,255), -1)
 
