@@ -18,6 +18,11 @@ import numpy as np
 import cv2
 import mediapipe as mp
 from screeninfo import get_monitors
+from src.features_extraction import FeaturesExtraction
+from src import extract_landmark
+
+# import falling detectors
+
 
 class App :
     """
@@ -432,6 +437,7 @@ if __name__=='__main__':
     app = App(verbose=True)
 
 
+
     # Run de l'écran test :
     go = app.show_start_screen()
 
@@ -446,7 +452,7 @@ if __name__=='__main__':
 
         # according to dificulty, different set of exercice
         if difficulty == "facile":
-            exos = {cst.EX_SQUATS: 3, cst.EX_PUSH_UP: 3,cst.EX_PLANK: 5}
+            exos = {cst.EX_PLANK: 5,cst.EX_SQUATS: 3, cst.EX_PUSH_UP: 3,cst.EX_PLANK: 5}
 
         elif difficulty == "moyen":
             exos = {cst.EX_SQUATS: 5, 

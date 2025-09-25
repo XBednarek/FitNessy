@@ -8,6 +8,9 @@ from . import constants as cst # <-- Pour utiliser les constantes
 import numpy as np
 import cv2
 import mediapipe as mp
+from src.features_extraction import FeaturesExtraction
+from src import extract_landmark
+import time
 
 class Detector :
     """
@@ -42,6 +45,11 @@ class Detector :
         self.windows_name = windows_name
         # String pour le reward
         self.reward_string = reward_string
+        # fall detector 
+        self.fall_detector = FeaturesExtraction()
+        self.fall_detected = False
+        self.fall_start_time = None
+
     
     # -------------------------------------------------------------------------
     #                                                       Méthodes Abstraites
@@ -69,6 +77,13 @@ class Detector :
 
             # Lecture
             success, self.frame = self.cap.read()
+            self.fall_detector.compute_feature_from_frame(self.frame)
+            fall, _, _, _, _, _ = self.fall_detector.frame_to_state()
+            
+            if fall:
+                self.fall_detected = True
+                self.fall_start_time = time.time()
+
 
             if not success:
                 return success
@@ -108,7 +123,39 @@ class Detector :
 
     def imshow(self):
         """Affichage de l'image"""
+        
+        if self.fall_detected:
+            elapsed = time.time() - self.fall_start_time
+            if elapsed < 2:  
+                overlay = self.image.copy()
+                 
+                cv2.rectangle(
+                    overlay,
+                    (0, 0),
+                    (self.image.shape[1], self.image.shape[0]),
+                    cst.BGR_RED_FILTER,
+                    -1
+                )
+                alpha = 0.5
+                self.image = cv2.addWeighted(overlay, alpha, self.image, 1 - alpha, 0)
+
+                
+                cv2.putText(
+                    self.image,
+                    "CHUTE DETECTEE !!",
+                    (100, 100),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    2,
+                    (255, 255, 255),
+                    4,
+                    cv2.LINE_AA
+                )
+            else:
+                self.fall_detected = False
+
+       
         cv2.imshow(self.windows_name, cv2.cvtColor(self.image, cv2.COLOR_RGB2BGR))
+
 
     def close(self):
         """Fermeture de la fenètre"""
