@@ -56,6 +56,7 @@ BGR_NESSY_LIGHT_GREY = (239, 239, 239)
 DIFFICULTY_MID_GREY = (140, 139, 139)
 
 # Nom des fenêtres : ne pas mettre d'accent !
+WIN_NAME_DEFAULT = "MediaPipe"
 WIN_NAME_TITLE = "Bienvenue"
 WIN_NAME_PUSHUP = "Pompes !"
 WIN_NAME_HEELS2BUTTOCKS= "Talons fesses !"
@@ -65,3 +66,6 @@ WIN_NAME_MEDITATION_POSE = "Meditation pose !"
 WIN_NAME_PLANK = "Planche!"
 WIN_NAME_COBRA = "Cobra!"
 WIN_NAME_TREE_POSE = "Tree pose !"
+
+# Durée de la fenètre de félicitations
+CONGRATS_DURATION_S = 5 # En secondes 

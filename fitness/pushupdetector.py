@@ -1,7 +1,7 @@
 # Import relatif dans le package :
-from .detector import Detector
+from .movedetector import MoveDetector
 from . import constants as cst # <-- Pour utiliser les constantes
-from .tools import image2position,calc_distance
+from .tools import calc_distance
 # (Pour exécuter ce fichier, il faut donc faire proprement depuis l'extérieur du package)
 # Exemple : uv run python3 -m fitness.pushupdetector
 
@@ -10,108 +10,30 @@ import numpy as np
 import cv2
 import joblib
 
-class PushUpDetector(Detector):
+class PushUpDetector(MoveDetector):
 
     # -------------------------------------------------------------------------
     #                                                              Constructeur
     # -------------------------------------------------------------------------
 
-    def __init__(self, mediapipe_model, cap, verbose:bool = False, show_landmark:bool = False, windows_name:str = cst.WIN_NAME_PUSHUP) -> None:
+    def __init__(self, mediapipe_model, cap, verbose:bool = False,
+                                             show_landmark:bool = False,
+                                             windows_name:str = cst.WIN_NAME_PUSHUP) -> None:
         """Constructeur"""
         # Appel explicite du constructeur parent
-        super().__init__(mediapipe_model, cap, verbose, show_landmark, windows_name)
+        super().__init__(mediapipe_model, cap, verbose=verbose,
+                                               show_landmark=show_landmark,
+                                               windows_name=windows_name,
+                                               reward_string = "push-up !",
+                                               movement_cycle = ["up", "down"],
+                                               exo_name = "Push-up")
 
+    
     # -------------------------------------------------------------------------
     #                                                                  Méthodes
     # -------------------------------------------------------------------------
-    
-    # Masquage
-    def run(self, objective:int, methode = "Analytics") -> float:
-        """Run le décompte et renvoie le nombre de fois que l'exercice à été
-           réalisé"""
-        push_up_counter = 0
-        move = cst.MOVE_UNKNWON
-        while  self.cap.isOpened():
-        
-            # Process de l'image de la webcam
-            success = self.read_and_process()
-        
-            if not success :
-                if self.verbose :
-                    print("Ignoring empty camera frame.")
-                continue
 
-            # Récupération de l'array des positions
-            positions = self.getPositions()
-
-            # Detect :
-            detection = "None"
-            if positions is not None :
-                detection = self.detect(positions, methode)
-
-                if self.verbose :
-                    print(f"{detection =}")
-
-                # Count
-                if detection == "up" :
-                    if move == cst.MOVE_UNKNWON :
-                        move = cst.MOVE_DOWN
-                    elif move == cst.MOVE_UP :
-                        push_up_counter += 0.5
-                        move = cst.MOVE_DOWN
-                elif detection == "down" :
-                    if move == cst.MOVE_UNKNWON :
-                        move = cst.MOVE_UP
-                    elif move == cst.MOVE_DOWN :
-                        push_up_counter += 0.5
-                        move = cst.MOVE_UP
-
-            # Show counter :
-            font = cv2.FONT_HERSHEY_SIMPLEX
-            font_scale = 0.5
-            color = (0, 0, 0)
-            thickness = 1
-            
-            # Define positions for the text
-            position = (10, 20)
-            position2 = (10, 40) 
-            position3 = (10, 60)
-
-            # Show counter :
-            font = cv2.FONT_HERSHEY_SIMPLEX
-            font_scale = 0.5
-            color = (0, 0, 0)
-            thickness = 1
-            
-            # Define positions for the text
-            position = (10, 20)
-            position2 = (10, 40) 
-            position3 = (10, 60)
-
-            text_count = f"Pushup #: {push_up_counter}"
-            text_status = f"Move status: {move}"
-            text_lastdetect = f"Last: {detection}"
-            cv2.putText(self.image, text_count, position, font, font_scale, color, thickness, cv2.LINE_AA)
-            cv2.putText(self.image, text_status, position2, font, font_scale, color, thickness, cv2.LINE_AA)
-            cv2.putText(self.image, text_lastdetect, position3, font, font_scale, color, thickness, cv2.LINE_AA)
-
-            # Affichage
-            self.imshow()
-
-            # Quitte si l'objectif est atteint
-            if push_up_counter >= objective :
-                break
-        
-            if cv2.waitKey(5) & 0xFF == ord('q'):
-                break
-
-        # On quitte
-        self.close()
-
-        return push_up_counter
-
-
-    # Masquage
+    # Implémentation de la méthode abstraite de la classe mère Detector
     def detect(self, positions: np.ndarray, methode: str = "Analytics") -> str :
         """ Get the array of positions and detect if the position is "up",
             "down" or "other". 

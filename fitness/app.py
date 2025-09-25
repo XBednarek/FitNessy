@@ -8,7 +8,7 @@ from .plankdetector import PlankDetector
 from .meditationposedetector import MeditationPoseDetector
 from .rectangle import Rectangle
 from .tools import composite_image, resize_to_height, to_float32, to_uint8
-from .bhujangasandetector import Bhujangasandetector
+from .cobradetector import Cobradetector
 from . import constants as cst # <-- Pour utiliser les constantes
 # (Pour exécuter ce fichier, il faut donc faire proprement depuis l'extérieur du package)
 # Exemple : uv run python3 -m fitness.app
@@ -60,7 +60,7 @@ class App :
         # Médiation
         self.meditation_pose_detector = MeditationPoseDetector(self.mediapipe_model, self.cap, self.verbose)
         # Position du Cobra (yoga)
-        self.cobra_detector = Bhujangasandetector(self.mediapipe_model, self.cap, self.verbose)
+        self.cobra_detector = Cobradetector(self.mediapipe_model, self.cap, self.verbose)
 
         # Positions de cliques de la souris
         self.left_clicked_x = -1

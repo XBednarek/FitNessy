@@ -1,5 +1,6 @@
 # Import relatif dans le package :
 from .tools import landmark2array
+from . import constants as cst # <-- Pour utiliser les constantes
 # (Pour exécuter ce fichier, il faut donc faire proprement depuis l'extérieur du package)
 # Exemple : uv run python3 -m fitness.detector
 
@@ -16,7 +17,10 @@ class Detector :
     #                                                              Constructeur
     # -------------------------------------------------------------------------
 
-    def __init__(self, mediapipe_model, cap, verbose:bool = False, show_landmark:bool = False, windows_name:str = 'MediaPipe') -> None:
+    def __init__(self, mediapipe_model, cap, verbose:bool = False,
+                                             show_landmark:bool = False,
+                                             windows_name:str = cst.WIN_NAME_DEFAULT,
+                                             reward_string:str = "") -> None:
         """"""
         # Modèle mediapipe
         self.mediapipe_model = mediapipe_model
@@ -36,6 +40,8 @@ class Detector :
         self.flip_frame = False
         # Nom de la fenètre d'affichage
         self.windows_name = windows_name
+        # String pour le reward
+        self.reward_string = reward_string
     
     # -------------------------------------------------------------------------
     #                                                       Méthodes Abstraites
@@ -90,8 +96,6 @@ class Detector :
             return success
         else :
             return False
-                
-    
 
     def getPositions(self) -> np.ndarray | None :
         """Renvoie l'array numpy des positions détectées"""
@@ -109,6 +113,50 @@ class Detector :
     def close(self):
         """Fermeture de la fenètre"""
         cv2.destroyWindow(self.windows_name)
+
+    def congrate(self, objective):
+        """Génère l'écran de félicitation""" 
+
+        # TODO : faire en relatif de la taille de l'image !
+
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        # set up size
+        font_scale = 1
+        # set up color
+        color = (255, 95, 31)
+        # set up thikness
+        thickness = 2
+
+        # outline
+        
+        # outline color
+        outline_color = (0, 0, 0)  # noir pour le contour
+        outline_thickness = thickness + 2  # contour légèrement plus épais
+
+        # --------- congrats message avec contour ------------
+
+        # "Congratulations !"
+        cv2.putText(self.image, "Congratulations !", (200, 100), font, font_scale, outline_color, outline_thickness, cv2.LINE_AA)
+        cv2.putText(self.image, "Congratulations !", (200, 100), font, font_scale, color, thickness, cv2.LINE_AA)
+
+        # "you performed"
+        cv2.putText(self.image, "you performed", (220, 150), font, font_scale, outline_color, outline_thickness, cv2.LINE_AA)
+        cv2.putText(self.image, "you performed", (220, 150), font, font_scale, color, thickness, cv2.LINE_AA)
+
+        # "{objective} sec."
+        cv2.putText(self.image, f"{objective}", (250, 225), font, font_scale+1, outline_color, outline_thickness+1, cv2.LINE_AA)
+        cv2.putText(self.image, f"{objective}", (250, 225), font, font_scale+1, color, thickness+1, cv2.LINE_AA)
+
+        # "of plank !"
+        cv2.putText(self.image, self.reward_string, (220, 275), font, font_scale, outline_color, outline_thickness, cv2.LINE_AA)
+        cv2.putText(self.image, self.reward_string, (220, 275), font, font_scale, color, thickness, cv2.LINE_AA)
+
+        # Confettis
+        for _ in range(200):  
+            x = np.random.randint(0, self.image.shape[1])
+            y = np.random.randint(0, self.image.shape[0])
+            col = (np.random.randint(0,255), np.random.randint(0,255), np.random.randint(0,255))
+            cv2.circle(self.image, (x, y), 3, col, -1)
             
 
          
