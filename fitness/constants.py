@@ -53,6 +53,7 @@ MOVE_MEDITATION_POSE = "meditation pose"
 BGR_NESSY_BLUE = (80, 48, 8)
 BGR_NESSY_ORANGE = (74, 153, 242)
 BGR_NESSY_LIGHT_GREY = (239, 239, 239)
+DIFFICULTY_MID_GREY = (140, 139, 139)
 
 # Nom des fenêtres : ne pas mettre d'accent !
 WIN_NAME_DEFAULT = "MediaPipe"
