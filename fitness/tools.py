@@ -33,6 +33,7 @@ def image2position(image : np.ndarray, mediapipe_model, show:bool=False) -> np.n
 
     Returns:
         np.ndarray: Numpy array with x, y, z as column. Or None if no position have been detected.
+        object : results of the process
     """
 
     # Traitement
@@ -111,6 +112,98 @@ def calcul_angle(A,B,C):
     angle = np.degrees(np.arccos(cos_angle))
     
     return angle
+
+
+
+def to_float32(image: np.ndarray) -> np.ndarray:
+    """Convert to float32 image"""
+
+    # Copy :
+    image = image.copy()
+
+    # Convert if needed
+    if image.dtype == np.float32 :
+        return image
+    if image.dtype == np.float64 :
+        return image.astype(np.float32)
+    elif image.dtype == np.uint8 :
+        return np.clip(image/255, 0, 1).astype(np.float32)
+    else :
+        raise ValueError(f"I can not convert {image.dtype} image to float32 image !")
+    
+
+
+def to_uint8(image: np.ndarray) -> np.ndarray:
+    """Convert to uint8 image"""
+
+    # Copy :
+    image = image.copy()
+
+    # Convert if needed
+    if image.dtype == np.uint8 :
+        return image
+    elif (image.dtype == np.float32) or (image.dtype == np.float64):
+        return np.clip(image*255, 0, 255).astype(np.uint8)
+    else :
+        raise ValueError(f"I can not convert {image.dtype} image to float32 image !")
+
+
+
+def composite_image(imageA: np.ndarray, imageB: np.ndarray, mask: np.ndarray, dtype:type=np.float32) -> np.ndarray:
+    """ Blend two images using an alpha mask.
+        Return an image in the given dtype
+
+    Arguments:
+        imageA (np.ndarray): Background image (could be uint8 or float32, could be RGB or RGBA)
+        imageB (np.ndarray): Foreground image (could be uint8 or float32, could be RGB or RGBA)
+        mask (np.ndarray): Alpha mask with values in range [0, 1]
+        
+    Returns:
+        np.ndarray: The blended image (RGB) in the given dtype
+    """
+
+    # On va arbitrairement travailler sur des float32
+    imageA = to_float32(imageA)
+    imageB = to_float32(imageB)
+
+    # On fait le alpha blending
+    try :
+        imageC = (imageB * mask + imageA * (1-mask))
+    except :
+        imageC = (imageB * mask[..., None] + imageA * (1-mask[..., None] ))
+
+    # On convertit selon le dtype souhaité
+    if dtype == np.uint8 :
+        return to_uint8(imageC)
+    else :
+        return imageC
+    
+def resize_to_height(image: np.ndarray, target_height: int) -> np.ndarray:
+    """Redimensionner une image en lui donnant un nouvelle hauteur"""
+    # Obtenir les dimensions actuelles
+    h, w = image.shape[:2]
+    
+    # Calculer la nouvelle largeur pour garder les proportions
+    new_width = int(target_height / h * w)
+    
+    # Redimensionner
+    resized_image = cv2.resize(image, (new_width, target_height))
+
+    return resized_image
+
+
+def resize_to_width(image: np.ndarray, target_width: int) -> np.ndarray:
+    """Redimensionner une image en lui donnant un nouvelle largeur"""
+    # Obtenir les dimensions actuelles
+    h, w = image.shape[:2]
+    
+    # Calculer la nouvelle hauteur pour garder les proportions
+    new_height = int(target_width / w * h)
+    
+    # Redimensionner
+    resized_image = cv2.resize(image, (target_width, new_height))
+    
+    return resized_image
 
 
 if __name__=='__main__':

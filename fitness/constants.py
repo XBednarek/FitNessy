@@ -2,6 +2,14 @@
 # par exemple les positions des points qui sont utiles
 import mediapipe as mp
 
+# Résolution de l'écran utilisée pour le devellopement
+SCREEN_H_DEV = 720
+SCREEN_W_DEV = 1280
+
+# Résolution de l'écran pour l'utilisateur
+SCREEN_H = 360
+SCREEN_W = 640
+
 # POSITION DU CORPS : 
 
 # Coté droit
@@ -22,14 +30,12 @@ LEFT_ANKLE = mp.solutions.pose.PoseLandmark.LEFT_ANKLE
 LEFT_KNEE = mp.solutions.pose.PoseLandmark.LEFT_KNEE
 LEFT_FOOT_INDEX = mp.solutions.pose.PoseLandmark.LEFT_FOOT_INDEX
 
-
-
 # Nom des exercices
 EX_PUSH_UP = "Pompes"
 EX_HEELS2BUTTOCKS = "Talons-fesses"
 EX_KNEERAISE = "Montées de genoux"
 EX_SQUATS = "Squats"
-EX_TREE_POSE = "Tree pose"
+EX_TREEPOSE = "Tree Pose"
 EX_MEDITATION_POSE = "Meditation pose"
 EX_PLANK = "Planche"
 EX_COBRA="cobra"
@@ -46,6 +52,7 @@ MOVE_MEDITATION_POSE = "meditation pose"
 # COULEURS BGR
 BGR_NESSY_BLUE = (80, 48, 8)
 BGR_NESSY_ORANGE = (74, 153, 242)
+BGR_NESSY_LIGHT_GREY = (239, 239, 239)
 
 # Nom des fenêtres : ne pas mettre d'accent !
 WIN_NAME_TITLE = "Bienvenue"

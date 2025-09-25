@@ -1,7 +1,7 @@
 # Import relatif dans le package :
 from .detector import Detector
 from . import constants as cst # <-- Pour utiliser les constantes
-from .tools import image2position, calcul_angle
+from .tools import calcul_angle
 # (Pour exécuter ce fichier, il faut donc faire proprement depuis l'extérieur du package)
 # Exemple : uv run python3 -m fitness.pushupdetector
 import time
@@ -9,7 +9,6 @@ import time
 # Autres imports
 import numpy as np
 import cv2
-import joblib
 
 class PlankDetector(Detector):
 
@@ -17,10 +16,10 @@ class PlankDetector(Detector):
     #                                                              Constructeur
     # -------------------------------------------------------------------------
 
-    def __init__(self, mediapipe_model, cap, verbose:bool = False) -> None:
+    def __init__(self, mediapipe_model, cap, verbose:bool = False, show_landmark:bool = False, windows_name:str = cst.WIN_NAME_PLANK) -> None:
         """Constructeur"""
         # Appel explicite du constructeur parent
-        super().__init__(mediapipe_model, cap, verbose)
+        super().__init__(mediapipe_model, cap, verbose, show_landmark, windows_name)
 
 
     # -------------------------------------------------------------------------
@@ -28,9 +27,7 @@ class PlankDetector(Detector):
     # -------------------------------------------------------------------------
     
     # Masquage
-
-
-    def run(self, objective:int) -> int:
+    def run(self, objective:int) -> float:
             
             plank_active = False
             start_time = 0
@@ -40,19 +37,21 @@ class PlankDetector(Detector):
 
             while self.cap.isOpened():
                  
-                success, image = self.cap.read()
-
-                if not success:
-                    print("Ignoring empty camera frame")
+                # Process de l'image de la webcam
+                success = self.read_and_process()
+            
+                if not success :
+                    if self.verbose :
+                        print("Ignoring empty camera frame.")
                     continue
 
-                #image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-                position = image2position(image, mediapipe_model=self.mediapipe_model, show=False)
+                # Récupération de l'array des positions
+                positions = self.getPositions()
 
-                if position is None:
+                if positions is None:
                     detection = False
                 else:
-                    detection = self.detect(position)  
+                    detection = self.detect(positions)  
 
                 # --------- Detect start plank and end plank ---------
                 if detection:
@@ -91,9 +90,10 @@ class PlankDetector(Detector):
                 color = (0, 0, 255)
                 thickness = 2
                 text = f"Plank: {elapsed:.1f} s"
-                cv2.putText(image, text, (10,50), font, font_scale, color, thickness, cv2.LINE_AA)
-                cv2.imshow(cst.WIN_NAME_PLANK, image)
+                cv2.putText(self.image, text, (10,50), font, font_scale, color, thickness, cv2.LINE_AA)
 
+                # Affichage
+                self.imshow()
 
                 #------------- manage when objective is reach ------
                 if elapsed >= objective :
@@ -104,20 +104,51 @@ class PlankDetector(Detector):
                     color = (255, 95, 31)
                     # set up thikness
                     thickness = 2
-                    # add text on cv2 images at coordinate given
-                    cv2.putText(image, "Congratulations !", (200, 100), font, font_scale, color, thickness, cv2.LINE_AA)
-                    cv2.putText(image, "you performed", (220, 150), font, font_scale, color, thickness, cv2.LINE_AA)
-                    cv2.putText(image, f"{objective} sec.", (250, 225), font, font_scale+1, color, thickness+1, cv2.LINE_AA)
-                    cv2.putText(image, "of plank !", (180, 275), font, font_scale, color, thickness, cv2.LINE_AA)
-                    cv2.imshow(cst.WIN_NAME_PLANK, image)
+
+                    # outline
+                    
+                    # outline color
+                    outline_color = (0, 0, 0)  # noir pour le contour
+                    outline_thickness = thickness + 2  # contour légèrement plus épais
+
+                    # --------- congrats message avec contour ------------
+
+                    # "Congratulations !"
+                    cv2.putText(self.image, "Congratulations !", (200, 100), font, font_scale, outline_color, outline_thickness, cv2.LINE_AA)
+                    cv2.putText(self.image, "Congratulations !", (200, 100), font, font_scale, color, thickness, cv2.LINE_AA)
+
+                    # "you performed"
+                    cv2.putText(self.image, "you performed", (220, 150), font, font_scale, outline_color, outline_thickness, cv2.LINE_AA)
+                    cv2.putText(self.image, "you performed", (220, 150), font, font_scale, color, thickness, cv2.LINE_AA)
+
+                    # "{objective} sec."
+                    cv2.putText(self.image, f"{objective} sec.", (250, 225), font, font_scale+1, outline_color, outline_thickness+1, cv2.LINE_AA)
+                    cv2.putText(self.image, f"{objective} sec.", (250, 225), font, font_scale+1, color, thickness+1, cv2.LINE_AA)
+
+                    # "of plank !"
+                    cv2.putText(self.image, "of plank !", (220, 275), font, font_scale, outline_color, outline_thickness, cv2.LINE_AA)
+                    cv2.putText(self.image, "of plank !", (220, 275), font, font_scale, color, thickness, cv2.LINE_AA)
+
+                    # try confeti
+
+                    for _ in range(200):  
+                        x = np.random.randint(0, self.image.shape[1])
+                        y = np.random.randint(0, self.image.shape[0])
+                        col = (np.random.randint(0,255), np.random.randint(0,255), np.random.randint(0,255))
+                        cv2.circle(self.image, (x, y), 3, col, -1)
+
+                    # Affichage
+                    self.imshow()
+
                     cv2.waitKey(5000)
                     break
                 # --------- Set up "q" to quite ---------
                 if cv2.waitKey(5) & 0xFF == ord('q'):
                     break
 
+            # On quitte
+            self.close()
 
-            cv2.destroyWindow(cst.WIN_NAME_PLANK)
             return elapsed
 
     

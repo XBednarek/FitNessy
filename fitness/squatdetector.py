@@ -9,7 +9,6 @@ from .tools import calcul_angle
 import numpy as np
 import mediapipe as mp
 import cv2
-import matplotlib.pyplot as plt
 
 class SquatDetector(Detector):
 
@@ -17,17 +16,18 @@ class SquatDetector(Detector):
     #                                                              Constructeur
     # -------------------------------------------------------------------------
 
-    def __init__(self, mediapipe_model, cap, verbose:bool = False) -> None:
+    def __init__(self, mediapipe_model, cap, verbose:bool = False, show_landmark:bool = False, windows_name:str = cst.WIN_NAME_SQUATS) -> None:
         """Constructeur"""
         # Appel explicite du constructeur parent
-        super().__init__(mediapipe_model, cap, verbose)
+        super().__init__(mediapipe_model, cap, verbose, show_landmark, windows_name)
         self.stage= None
         self.counter=0
+
     # -------------------------------------------------------------------------
     #                                                                  Méthodes
     # -------------------------------------------------------------------------
     # extract les points important pour detecter le mouvement de squat
-    def extract_position(self,result,frame_shape :tuple) -> np.ndarray:
+    def extract_position(self, result, frame_shape :tuple) -> np.ndarray:
         """
         extraire les positions (hanche, genou et cheville).
         """
@@ -44,7 +44,6 @@ class SquatDetector(Detector):
         mp_pose=mp.solutions.pose # creer un reference de module de pose
         
 
-        
         # detections les hanches gauche et droit 
         left_hip  = landmarks[mp_pose.PoseLandmark.LEFT_HIP]
         right_hip = landmarks[mp_pose.PoseLandmark.RIGHT_HIP]
@@ -93,32 +92,23 @@ class SquatDetector(Detector):
             
         return key_points
     
-    def run(self, objective:int) -> int:
+    def run(self, objective:int) -> float:
         """Run le décompte et renvoie le nombre de fois que l'exercice à été
            réalisé"""
         
-        mp_pose=mp.solutions.pose # initialiser la classe de pose qui detecte les points de la squellete
-        pose = mp_pose.Pose() # initialiser l'objet Pose pour pouvoir traiter des images
-        # result= pose.process(image) # traiter l'image et detecter les points clés du corps
-
         self.counter = 0
 
-        if not self.cap.isOpened():
-            print("Erreur : impossible d'ouvrir la webcam")
-            return
-
         while self.cap.isOpened():
-            success, frame = self.cap.read()
-            if not success:
-                print("Ignoring empty camera frame.")
+
+            # Process de l'image de la webcam
+            success = self.read_and_process()
+        
+            if not success :
+                if self.verbose :
+                    print("Ignoring empty camera frame.")
                 continue
 
-            # convertir en RGB pour Mediapipe
-
-            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            results = pose.process(rgb_frame)
-
-            points = self.extract_position(results, frame.shape) # extraire les points important dans notre image
+            points = self.extract_position(self.results, self.frame.shape) # extraire les points important dans notre image
             
             # choisir le côté détecté
             
@@ -140,18 +130,18 @@ class SquatDetector(Detector):
                     self.stage = "up"
                     self.counter += 1
     
-                cv2.putText(frame, str(int(angle)), (int(knee[0])+20, int(knee[1])),cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,255,255), 2)
+                cv2.putText(self.image, str(int(angle)), (int(knee[0])+20, int(knee[1])),cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,255,255), 2)
 
                 # afficher compteur
-                cv2.putText(frame, f'squat_counter: {self.counter}', (50,50),cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0,255,0), 3)
+                cv2.putText(self.image, f'squat_counter: {self.counter}', (50,50),cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0,255,0), 3)
 
                 # dessiner les points
                 for p in [hip, knee, ankle]:
                     if p is not None:
-                        cv2.circle(frame, (int(p[0]), int(p[1])), 10, (0,255,255), -1)
+                        cv2.circle(self.image, (int(p[0]), int(p[1])), 10, (0,255,255), -1)
 
-            cv2.imshow(cst.WIN_NAME_SQUATS, frame)
-
+            # Affichage
+            self.imshow()
 
             if cv2.waitKey(5) & 0xFF == ord('q'):  # q pour quitter
                 break
@@ -159,9 +149,8 @@ class SquatDetector(Detector):
             if self.counter >= objective:
                 break
 
-        # Destruction de la fenetre
-        cv2.destroyWindow(cst.WIN_NAME_SQUATS)
-
+        # On quitte
+        self.close()
 
         return self.counter
 

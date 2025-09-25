@@ -15,10 +15,10 @@ class TreePoseDetector(Detector):
     #                                                              Constructeur
     # -------------------------------------------------------------------------
 
-    def __init__(self, mediapipe_model, cap, verbose:bool = False) -> None:
+    def __init__(self, mediapipe_model, cap, verbose:bool = False, show_landmark:bool = False, windows_name:str = cst.WIN_NAME_TREE_POSE) -> None:
         """Constructeur"""
         # Appel explicite du constructeur parent
-        super().__init__(mediapipe_model, cap, verbose)
+        super().__init__(mediapipe_model, cap, verbose, show_landmark, windows_name)
 
 
     # -------------------------------------------------------------------------
@@ -35,20 +35,20 @@ class TreePoseDetector(Detector):
         tolerance = tolerance_max
         min_detect_pose_frames = 5
         detect_pose_frames = 0
+        elapsed_time = 0
         
         while  self.cap.isOpened():
         
-            success, image = self.cap.read()
+            # Process de l'image de la webcam
+            success = self.read_and_process()
+        
+            if not success :
+                if self.verbose :
+                    print("Ignoring empty camera frame.")
+                continue
 
-            if not success:
-                print("Ignoring empty camera frame.")
-                continue     # If loading a video, use 'break' instead of 'continue'.
-
-            # Flip the image horizontally for a later selfie-view display, and convert the BGR image to RGB.
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-            # Process
-            positions = image2position(image, mediapipe_model=self.mediapipe_model, show=False)
+            # Récupération de l'array des positions
+            positions = self.getPositions()
             
             # Detect :
             detection = "None"
@@ -79,8 +79,6 @@ class TreePoseDetector(Detector):
             if move == cst.MOVE_TREE_POSE:
                 elapsed_ticks = cv2.getTickCount() - start_timer
                 elapsed_time = round(elapsed_ticks / cv2.getTickFrequency(), 2)
-            else:
-                elapsed_time = 0
             
             # Show counter :
             font = cv2.FONT_HERSHEY_SIMPLEX
@@ -96,9 +94,9 @@ class TreePoseDetector(Detector):
             text_count = f"Tree pose #: {elapsed_time} sec."
             text_status = f"Move status: {move}"
             text_lastdetect = f"Last: {detection}"
-            cv2.putText(image, text_count, position, font, font_scale, color, thickness, cv2.LINE_AA)
-            cv2.putText(image, text_status, position2, font, font_scale, color, thickness, cv2.LINE_AA)
-            cv2.putText(image, text_lastdetect, position3, font, font_scale, color, thickness, cv2.LINE_AA)
+            cv2.putText(self.image, text_count, position, font, font_scale, color, thickness, cv2.LINE_AA)
+            cv2.putText(self.image, text_status, position2, font, font_scale, color, thickness, cv2.LINE_AA)
+            cv2.putText(self.image, text_lastdetect, position3, font, font_scale, color, thickness, cv2.LINE_AA)
 
             if elapsed_time >= objective :
                 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -113,10 +111,10 @@ class TreePoseDetector(Detector):
                 position3 = (250, 225)
                 text4 = "of the Tree pose !"
                 position4 = (180, 275)
-                cv2.putText(image, text1, position1, font, font_scale, color, thickness, cv2.LINE_AA)
-                cv2.putText(image, text2, position2, font, font_scale, color, thickness, cv2.LINE_AA)
-                cv2.putText(image, text3, position3, font, font_scale+1, color, thickness+1, cv2.LINE_AA)
-                cv2.putText(image, text4, position4, font, font_scale, color, thickness, cv2.LINE_AA)
+                cv2.putText(self.image, text1, position1, font, font_scale, color, thickness, cv2.LINE_AA)
+                cv2.putText(self.image, text2, position2, font, font_scale, color, thickness, cv2.LINE_AA)
+                cv2.putText(self.image, text3, position3, font, font_scale+1, color, thickness+1, cv2.LINE_AA)
+                cv2.putText(self.image, text4, position4, font, font_scale, color, thickness, cv2.LINE_AA)
 
             if tolerance == 0:
                 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -131,16 +129,15 @@ class TreePoseDetector(Detector):
                 position3 = (220, 225)
                 text4 = "of the Tree pose !"
                 position4 = (180, 275)
-                cv2.putText(image, text1, position1, font, font_scale, color, thickness, cv2.LINE_AA)
-                cv2.putText(image, text2, position2, font, font_scale, color, thickness, cv2.LINE_AA)
-                cv2.putText(image, text3, position3, font, font_scale+1, color, thickness+1, cv2.LINE_AA)
-                cv2.putText(image, text4, position4, font, font_scale, color, thickness, cv2.LINE_AA)
+                cv2.putText(self.image, text1, position1, font, font_scale, color, thickness, cv2.LINE_AA)
+                cv2.putText(self.image, text2, position2, font, font_scale, color, thickness, cv2.LINE_AA)
+                cv2.putText(self.image, text3, position3, font, font_scale+1, color, thickness+1, cv2.LINE_AA)
+                cv2.putText(self.image, text4, position4, font, font_scale, color, thickness, cv2.LINE_AA)
 
-            # Convertion avant affichage
-            result_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+            # Affichage
+            self.imshow()
 
-            cv2.imshow(cst.WIN_NAME_TREE_POSE, result_image)
-
+            # Quitte si l'objectif est atteint
             if elapsed_time >= objective :
                 cv2.waitKey(5000)
                 break
@@ -152,8 +149,8 @@ class TreePoseDetector(Detector):
             if cv2.waitKey(5) & 0xFF == ord('q'):
                 break
         
-        # Destruction de la fenetre
-        cv2.destroyWindow(cst.WIN_NAME_TREE_POSE)
+        # On quitte
+        self.close()
 
         return elapsed_time
 

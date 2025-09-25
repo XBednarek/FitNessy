@@ -1,7 +1,7 @@
 # Import relatif dans le package :
 from .detector import Detector
 from . import constants as cst # <-- Pour utiliser les constantes
-from .tools import calc_distance, image2position
+from .tools import calc_distance
 # (Pour exécuter ce fichier, il faut donc faire proprement depuis l'extérieur du package)
 # Exemple : uv run python3 -m fitness.heels2buttocksdetector
 
@@ -15,10 +15,10 @@ class Heels2ButtocksDetector(Detector):
     #                                                              Constructeur
     # -------------------------------------------------------------------------
 
-    def __init__(self, mediapipe_model, cap, verbose:bool = False) -> None:
+    def __init__(self, mediapipe_model, cap, verbose:bool = False, show_landmark:bool = False, windows_name:str = cst.WIN_NAME_HEELS2BUTTOCKS) -> None:
         """Constructeur"""
         # Appel explicite du constructeur parent
-        super().__init__(mediapipe_model, cap, verbose)
+        super().__init__(mediapipe_model, cap, verbose, show_landmark, windows_name)
 
 
     # -------------------------------------------------------------------------
@@ -33,19 +33,18 @@ class Heels2ButtocksDetector(Detector):
         heels_butt_counter = 0
         move = cst.MOVE_UNKNWON
         
-        while  self.cap.isOpened():
+        while self.cap.isOpened():
+
+            # Process de l'image de la webcam
+            success = self.read_and_process()
         
-            success, image = self.cap.read()
+            if not success :
+                if self.verbose :
+                    print("Ignoring empty camera frame.")
+                continue
 
-            if not success:
-                print("Ignoring empty camera frame.")
-                continue     # If loading a video, use 'break' instead of 'continue'.
-
-            # Flip the image horizontally for a later selfie-view display, and convert the BGR image to RGB.
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-            # Process
-            positions = image2position(image, mediapipe_model=self.mediapipe_model, show=False)
+            # Récupération de l'array des positions
+            positions = self.getPositions()
             
             # Detect :
             detection = "None"
@@ -86,9 +85,9 @@ class Heels2ButtocksDetector(Detector):
             text_count = f"Heels-butt #: {heels_butt_counter}"
             text_status = f"Move status: {move}"
             text_lastdetect = f"Last: {detection}"
-            cv2.putText(image, text_count, position, font, font_scale, color, thickness, cv2.LINE_AA)
-            cv2.putText(image, text_status, position2, font, font_scale, color, thickness, cv2.LINE_AA)
-            cv2.putText(image, text_lastdetect, position3, font, font_scale, color, thickness, cv2.LINE_AA)
+            cv2.putText(self.image, text_count, position, font, font_scale, color, thickness, cv2.LINE_AA)
+            cv2.putText(self.image, text_status, position2, font, font_scale, color, thickness, cv2.LINE_AA)
+            cv2.putText(self.image, text_lastdetect, position3, font, font_scale, color, thickness, cv2.LINE_AA)
 
             if heels_butt_counter >= objective :
                 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -103,26 +102,26 @@ class Heels2ButtocksDetector(Detector):
                 position3 = (300, 225)
                 text4 = "heels-to-buttocks !"
                 position4 = (180, 275)
-                cv2.putText(image, text1, position1, font, font_scale, color, thickness, cv2.LINE_AA)
-                cv2.putText(image, text2, position2, font, font_scale, color, thickness, cv2.LINE_AA)
-                cv2.putText(image, text3, position3, font, 2, color, 3, cv2.LINE_AA)
-                cv2.putText(image, text4, position4, font, font_scale, color, thickness, cv2.LINE_AA)
+                cv2.putText(self.image, text1, position1, font, font_scale, color, thickness, cv2.LINE_AA)
+                cv2.putText(self.image, text2, position2, font, font_scale, color, thickness, cv2.LINE_AA)
+                cv2.putText(self.image, text3, position3, font, 2, color, 3, cv2.LINE_AA)
+                cv2.putText(self.image, text4, position4, font, font_scale, color, thickness, cv2.LINE_AA)
 
-            # Convertion avant affichage
-            result_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+            # Affichage
+            self.imshow()
 
-            cv2.imshow(cst.WIN_NAME_HEELS2BUTTOCKS, result_image)
-
+            # Quitte si l'objectif est atteint
             if heels_butt_counter >= objective :
                 cv2.waitKey(5000)
                 break
-
+            
+            # Quitte si on appuie sur q
             if cv2.waitKey(5) & 0xFF == ord('q'):
                 break
         
-        # Destruction de la fenetre
-        cv2.destroyWindow(cst.WIN_NAME_HEELS2BUTTOCKS)
-
+        # On quitte
+        self.close()
+        
         return heels_butt_counter
 
 

@@ -16,39 +16,38 @@ class PushUpDetector(Detector):
     #                                                              Constructeur
     # -------------------------------------------------------------------------
 
-    def __init__(self, mediapipe_model, cap, verbose:bool = False) -> None:
+    def __init__(self, mediapipe_model, cap, verbose:bool = False, show_landmark:bool = False, windows_name:str = cst.WIN_NAME_PUSHUP) -> None:
         """Constructeur"""
         # Appel explicite du constructeur parent
-        super().__init__(mediapipe_model, cap, verbose)
-
+        super().__init__(mediapipe_model, cap, verbose, show_landmark, windows_name)
 
     # -------------------------------------------------------------------------
     #                                                                  Méthodes
     # -------------------------------------------------------------------------
     
     # Masquage
-    def run(self, objective:int, methode = "Analytics") -> int:
+    def run(self, objective:int, methode = "Analytics") -> float:
         """Run le décompte et renvoie le nombre de fois que l'exercice à été
            réalisé"""
         push_up_counter = 0
         move = cst.MOVE_UNKNWON
         while  self.cap.isOpened():
         
-            success, image = self.cap.read()
+            # Process de l'image de la webcam
+            success = self.read_and_process()
+        
+            if not success :
+                if self.verbose :
+                    print("Ignoring empty camera frame.")
+                continue
 
-            if not success:
-                print("Ignoring empty camera frame.")
-                continue     # If loading a video, use 'break' instead of 'continue'.
-
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-            # Process
-            positions = image2position(image, mediapipe_model=self.mediapipe_model, show=False)
+            # Récupération de l'array des positions
+            positions = self.getPositions()
 
             # Detect :
             detection = "None"
             if positions is not None :
-                detection = self.detect(positions,methode)
+                detection = self.detect(positions, methode)
 
                 if self.verbose :
                     print(f"{detection =}")
@@ -92,27 +91,27 @@ class PushUpDetector(Detector):
             text_count = f"Pushup #: {push_up_counter}"
             text_status = f"Move status: {move}"
             text_lastdetect = f"Last: {detection}"
-            cv2.putText(image, text_count, position, font, font_scale, color, thickness, cv2.LINE_AA)
-            cv2.putText(image, text_status, position2, font, font_scale, color, thickness, cv2.LINE_AA)
-            cv2.putText(image, text_lastdetect, position3, font, font_scale, color, thickness, cv2.LINE_AA)
+            cv2.putText(self.image, text_count, position, font, font_scale, color, thickness, cv2.LINE_AA)
+            cv2.putText(self.image, text_status, position2, font, font_scale, color, thickness, cv2.LINE_AA)
+            cv2.putText(self.image, text_lastdetect, position3, font, font_scale, color, thickness, cv2.LINE_AA)
 
-            # Convertion avant affichage
-            result_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+            # Affichage
+            self.imshow()
 
-            cv2.imshow(cst.WIN_NAME_PUSHUP, result_image)
-
-            if cv2.waitKey(5) & 0xFF == ord('q'):
-                break
+            # Quitte si l'objectif est atteint
             if push_up_counter >= objective :
                 break
+        
+            if cv2.waitKey(5) & 0xFF == ord('q'):
+                break
 
-        # Destruction de la fenetre
-        cv2.destroyWindow(cst.WIN_NAME_PUSHUP)
+        # On quitte
+        self.close()
 
         return push_up_counter
 
 
-       # Masquage
+    # Masquage
     def detect(self, positions: np.ndarray, methode: str = "Analytics") -> str :
         """ Get the array of positions and detect if the position is "up",
             "down" or "other". 

@@ -11,15 +11,14 @@ import mediapipe as mp
 import cv2
 import time
 
-
-
 class Bhujangasandetector(Detector):
 
 
-    def __init__(self, mediapipe_model, cap, verbose:bool = False) -> None:
+    def __init__(self, mediapipe_model, cap, verbose:bool = False, show_landmark:bool = False, windows_name:str = cst.WIN_NAME_COBRA) -> None:
         """Constructeur"""
         # Appel explicite du constructeur parent
-        super().__init__(mediapipe_model, cap, verbose)
+        super().__init__(mediapipe_model, cap, verbose, show_landmark, windows_name)
+
     # -------------------------------------------------------------------------
     #                                                                  Méthodes
     # -------------------------------------------------------------------------
@@ -89,26 +88,18 @@ class Bhujangasandetector(Detector):
         """
         self.timer_start= None # le moment ou la posture 'up' commence
         self.timer_duration=0
-        mp_pose=mp.solutions.pose # initialiser la classe de pose qui detecte les points de la squellete
-        pose = mp_pose.Pose() # initialiser l'objet Pose pour pouvoir traiter des images
-        # result= pose.process(image) # traiter l'image et detecter les points clés du corps
-
-        if not self.cap.isOpened():
-            print("Erreur : impossible d'ouvrir la webcam")
-            return
 
         while self.cap.isOpened():
-            success, frame = self.cap.read()
-            if not success:
-                print("Ignoring empty camera frame.")
+
+            # Process de l'image de la webcam
+            success = self.read_and_process()
+        
+            if not success :
+                if self.verbose :
+                    print("Ignoring empty camera frame.")
                 continue
 
-            # convertir en RGB pour Mediapipe
-
-            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            results = pose.process(rgb_frame)
-
-            points = self.extract_points(results, frame.shape) # extraire les points important dans notre image
+            points = self.extract_points(self.results, self.frame.shape) # extraire les points important dans notre image
             
             # choisir quel côté détecté
             
@@ -134,19 +125,19 @@ class Bhujangasandetector(Detector):
                     if self.timer_start is not None:
                         self.timer_duration = time.time() - self.timer_start
     
-                cv2.putText(frame, str(int(angle_soulder_hip_ankle)), (int(hip[0])+20, int(hip[1])),cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,255,255), 2)
+                cv2.putText(self.image, str(int(angle_soulder_hip_ankle)), (int(hip[0])+20, int(hip[1])),cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,255,255), 2)
 
                 # afficher compteur
-                cv2.putText(frame, f'aconda yoga Timer: {round(self.timer_duration,2)}', (50,100),cv2.FONT_HERSHEY_SIMPLEX, 1.2, (18,18,18), 3)
+                cv2.putText(self.image, f'aconda yoga Timer: {round(self.timer_duration,2)}', (50,100),cv2.FONT_HERSHEY_SIMPLEX, 1.2, (18,18,18), 3)
 
 
                 # dessiner les points
                 for p in [hip,shoulder, ankle]:
                     if p is not None:
-                        cv2.circle(frame, (int(p[0]), int(p[1])), 10, (0,255,255), -1)
+                        cv2.circle(self.image, (int(p[0]), int(p[1])), 10, (0,255,255), -1)
 
-            cv2.imshow(cst.WIN_NAME_COBRA, frame)
-
+            # Affichage
+            self.imshow()
 
             if cv2.waitKey(5) & 0xFF == ord('q'):  # q pour quitter
                 break
@@ -154,8 +145,9 @@ class Bhujangasandetector(Detector):
             if self.timer_duration >= objective:
                 break
 
-        # Destruction de la fenetre
-        cv2.destroyWindow(cst.WIN_NAME_COBRA)
+        # On quitte
+        self.close()
+
         return self.timer_duration
 
 if __name__=='__main__':
