@@ -452,19 +452,19 @@ if __name__=='__main__':
 
         # according to dificulty, different set of exercice
         if difficulty == "facile":
-            exos = {cst.EX_PLANK: 5,cst.EX_SQUATS: 3, cst.EX_PUSH_UP: 3,cst.EX_PLANK: 5}
+            exos = {cst.EX_PLANK: 15,cst.EX_SQUATS: 3, cst.EX_PUSH_UP: 3,cst.EX_PLANK: 5}
 
         elif difficulty == "moyen":
             exos = {cst.EX_SQUATS: 5, 
                     cst.EX_PUSH_UP: 5,
-                    cst.EX_PLANK: 10,
+                    cst.EX_PLANK: 20,
                     cst.EX_KNEERAISE: 5,
                     cst.EX_HEELS2BUTTOCKS: 5}
 
         elif difficulty == "difficile":
             exos = {cst.EX_SQUATS: 8, 
                     cst.EX_PUSH_UP: 8,
-                    cst.EX_PLANK: 15,
+                    cst.EX_PLANK: 30,
                     cst.EX_KNEERAISE: 8,
                     cst.EX_HEELS2BUTTOCKS: 8,
                     cst.EX_TREEPOSE: 10,
