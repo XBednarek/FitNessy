@@ -223,7 +223,8 @@ class App :
                 break
 
         # Destruction de la fenetre
-        cv2.destroyWindow(win)
+        if not cst.KEEP_WIN_OPEN :
+            cv2.destroyWindow(win)
 
         return go
 
@@ -317,7 +318,8 @@ class App :
             if cv2.waitKey(5) & 0xFF == ord('q'):
                 break
 
-        cv2.destroyWindow(win)
+        if not cst.KEEP_WIN_OPEN :
+            cv2.destroyWindow(win)
         return choice
 
     # Lancement d'un set d'exercice

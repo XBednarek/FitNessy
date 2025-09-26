@@ -178,7 +178,9 @@ class Detector :
 
     def close(self):
         """Fermeture de la fenètre"""
-        cv2.destroyWindow(self.windows_name)
+        if not cst.KEEP_WIN_OPEN :
+            cv2.destroyWindow(self.windows_name)
+        
 
     def congrate(self, objective):
         """Génère l'écran de félicitation""" 
