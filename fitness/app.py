@@ -333,9 +333,9 @@ class App :
         font_scale = 1.5 * self.screen_scale
         thickness = 3
         # definir le texte
-        text1 = f"Next exercise:"
+        text1 = f"Prochain exercice :"
         text2 = f"{exo_name}"
-        text3 = f"Objective: {objectif}"
+        text3 = f"Objectif: {objectif}"
 
         # centrer
         y_center = self.screen_height // 2
@@ -393,6 +393,50 @@ class App :
         # Résultats de la séance :
         for exo, score in scores.items():
             print(f"Score : {score:.1f} {exo}.")
+        self.display_score(scores)
+
+    def display_score(self, scores) :
+        """Affiche un écran de transition entre deux exercices"""
+        win = cst.WIN_NAME_TITLE
+        cv2.namedWindow(win)
+
+        # Creation d'un screen d'une couleur unis
+        screen = np.full((self.screen_height, self.screen_width, 3), cst.BGR_NESSY_ORANGE, dtype=np.uint8)
+
+        # taille text
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        font_scale = 1.5 * self.screen_scale
+        thickness = 3
+        
+        # Titre
+        title = "Bilan de vos performances"
+        y_center = self.screen_height // 4
+        x_center = self.screen_width // 2
+
+        cv2.putText(screen, title,
+                (x_center - 200, y_center - 50),
+                font, font_scale,
+                cst.RGB_BLACK_TEXT, thickness, cv2.LINE_AA)
+        
+
+        # Afficher chaque exo avec son score
+        y_offset = y_center + 50
+        line_spacing = int(60 * self.screen_scale)
+
+        for i, (exo, result) in enumerate(scores.items()):
+            text = f"{exo}: {result}"
+            cv2.putText(screen, text,
+                        (x_center - 200, y_offset + i * line_spacing),
+                        font, font_scale,
+                        cst.RGB_BLACK_TEXT, thickness, cv2.LINE_AA)
+
+        # Affichage pendant 5 secondes
+        cv2.imshow(win, screen)
+        cv2.waitKey(10000)
+
+        cv2.destroyWindow(win)
+
+        
 
     def updateDetectors(self) :
         """Update des detecteurs"""

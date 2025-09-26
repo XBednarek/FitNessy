@@ -33,7 +33,7 @@ LEFT_FOOT_INDEX = mp.solutions.pose.PoseLandmark.LEFT_FOOT_INDEX
 # Nom des exercices
 EX_PUSH_UP = "Pompes"
 EX_HEELS2BUTTOCKS = "Talons-fesses"
-EX_KNEERAISE = "Montées de genoux"
+EX_KNEERAISE = "Montees de genoux"
 EX_SQUATS = "Squats"
 EX_TREEPOSE = "Tree Pose"
 EX_MEDITATION_POSE = "Meditation pose"
