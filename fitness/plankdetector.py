@@ -3,7 +3,7 @@ from .posedetector import PoseDetector
 from . import constants as cst # <-- Pour utiliser les constantes
 from .tools import calcul_angle,get_points_visibles
 # (Pour exécuter ce fichier, il faut donc faire proprement depuis l'extérieur du package)
-# Exemple : uv run python3 -m fitness.pushupdetector
+# Exemple : uv run python3 -m fitness.plankdetector
 
 # Autres imports
 import numpy as np
