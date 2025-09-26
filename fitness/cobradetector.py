@@ -21,13 +21,13 @@ class Cobradetector(PoseDetector):
     def __init__(self, mediapipe_model, cap, verbose:bool = False, 
                                             show_landmark:bool = False, 
                                             windows_name:str = cst.WIN_NAME_COBRA,
-                                            frame_queue:Queue|None = None) -> None:
+                                            fast_api_queues:tuple[Queue, Queue]|None = None) -> None:
         """Constructeur"""
         # Appel explicite du constructeur parent
         super().__init__(mediapipe_model, cap, verbose=verbose, 
                                                 show_landmark=show_landmark,
                                                 windows_name=windows_name,
-                                                frame_queue=frame_queue,
+                                                fast_api_queues=fast_api_queues,
                                                 reward_string = "cobra !",
                                                 pose_to_keep = "cobra",
                                                 exo_name = "cobra")

@@ -19,7 +19,7 @@ class MoveDetector(Detector):
                                              show_landmark:bool = False,
                                              windows_name:str = cst.WIN_NAME_DEFAULT,
                                              reward_string:str = "",
-                                             frame_queue:Queue|None = None,
+                                             fast_api_queues:tuple[Queue, Queue]|None = None,
                                              movement_cycle:list[str]=[""],
                                              exo_name: str="") -> None:
         """Constructeur d'un détecteur de mouvement"""
@@ -28,7 +28,7 @@ class MoveDetector(Detector):
                                                show_landmark=show_landmark,
                                                windows_name=windows_name,
                                                reward_string=reward_string,
-                                               frame_queue=frame_queue)
+                                               fast_api_queues=fast_api_queues)
 
         # Liste de positions attendues pour faire un movement
         movement_cycle = movement_cycle.copy()
@@ -121,6 +121,17 @@ class MoveDetector(Detector):
             if self.counter >= objective :
                 cv2.waitKey( cst.CONGRATS_DURATION_S * 1000)
                 break
+
+            # Vérifier s'il y a des actions à faire via FastAPI
+            if self.action_queue is not None and not self.action_queue.empty():
+                action = self.action_queue.get()
+                if self.verbose :
+                    print(f"Action reçue: {action}")  # Ici vous faites ce que vous voulez
+                if action=="quit":
+                    break
+                else :
+                    # Est-ce qu'il faut remettre l'action dans la queue ?
+                    pass
         
         # On quitte
         self.close()

@@ -28,7 +28,7 @@ class App :
     #                                                              Constructeur
     # -------------------------------------------------------------------------
 
-    def __init__(self, *, verbose:bool = False, frame_queue:Queue|None = None) -> None:
+    def __init__(self, *, verbose:bool = False, fast_api_queues:tuple[Queue, Queue]|None = None) -> None:
         """Constructeur de l'application"""
         
         if verbose :
@@ -48,25 +48,25 @@ class App :
         self.fall_detection_is_on = False
 
         # Setup pour l'utilisation d'une queue qui pourra être utilisée par fastAPI
-        self.frame_queue = frame_queue
+        self.fast_api_queues = fast_api_queues
 
         # Construction des detecteurs :
         # Pompes
-        self.push_up_detector = PushUpDetector(self.mediapipe_model, self.cap, self.verbose, frame_queue=self.frame_queue)
+        self.push_up_detector = PushUpDetector(self.mediapipe_model, self.cap, self.verbose, fast_api_queues=self.fast_api_queues)
         # Talons-fesses
-        self.heels_2_buttocks_detector = Heels2ButtocksDetector(self.mediapipe_model, self.cap, self.verbose, frame_queue=self.frame_queue)
+        self.heels_2_buttocks_detector = Heels2ButtocksDetector(self.mediapipe_model, self.cap, self.verbose, fast_api_queues=self.fast_api_queues)
         # Squats
-        self.squats_detector = SquatDetector(self.mediapipe_model, self.cap, self.verbose, frame_queue=self.frame_queue)
+        self.squats_detector = SquatDetector(self.mediapipe_model, self.cap, self.verbose, fast_api_queues=self.fast_api_queues)
         # Montée de genou
-        self.knee_raise_detector = KneeRaiseDetector(self.mediapipe_model, self.cap, self.verbose, frame_queue=self.frame_queue)
+        self.knee_raise_detector = KneeRaiseDetector(self.mediapipe_model, self.cap, self.verbose, fast_api_queues=self.fast_api_queues)
         # Positions de l'arbre
-        self.tree_pose_detector = TreePoseDetector(self.mediapipe_model, self.cap, self.verbose, frame_queue=self.frame_queue)
+        self.tree_pose_detector = TreePoseDetector(self.mediapipe_model, self.cap, self.verbose, fast_api_queues=self.fast_api_queues)
         # Planche
-        self.plank_detector = PlankDetector(self.mediapipe_model, self.cap, self.verbose, frame_queue=self.frame_queue)
+        self.plank_detector = PlankDetector(self.mediapipe_model, self.cap, self.verbose, fast_api_queues=self.fast_api_queues)
         # Médiation
-        self.meditation_pose_detector = MeditationPoseDetector(self.mediapipe_model, self.cap, self.verbose, frame_queue=self.frame_queue)
+        self.meditation_pose_detector = MeditationPoseDetector(self.mediapipe_model, self.cap, self.verbose, fast_api_queues=self.fast_api_queues)
         # Position du Cobra (yoga)
-        self.cobra_detector = Cobradetector(self.mediapipe_model, self.cap, self.verbose, frame_queue=self.frame_queue)
+        self.cobra_detector = Cobradetector(self.mediapipe_model, self.cap, self.verbose, fast_api_queues=self.fast_api_queues)
 
         # Positions de cliques de la souris
         self.left_clicked_x = -1

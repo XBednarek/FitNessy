@@ -25,7 +25,7 @@ class Detector :
                                              show_landmark:bool = False,
                                              windows_name:str = cst.WIN_NAME_DEFAULT,
                                              reward_string:str = "",
-                                             frame_queue:Queue|None = None) -> None:
+                                             fast_api_queues:tuple[Queue, Queue]|None = None) -> None:
         """"""
         # Modèle mediapipe
         self.mediapipe_model = mediapipe_model
@@ -52,8 +52,13 @@ class Detector :
         self.fall_detector = FeaturesExtraction()
         self.fall_detected = False
         self.fall_start_time = None
-        # Queue for Fast-API use
-        self.frame_queue = frame_queue
+        # Queues for Fast-API use
+        if fast_api_queues is None :
+            self.frame_queue = None
+            self.action_queue = None
+        else :
+            self.frame_queue = fast_api_queues[0]
+            self.action_queue = fast_api_queues[1]
     
     # -------------------------------------------------------------------------
     #                                                       Méthodes Abstraites
