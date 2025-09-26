@@ -120,12 +120,13 @@ class PoseDetector(Detector):
                     # On n'est pas en mode detection
                     start_detect_time = None
 
-                    # Si on n'a pas encore démarrer le compteur, on le démarre
-                    if start_tol_time is None :
-                        start_tol_time = time.time()
+                    if self.time_counter_s > 0 :
+                        # Si on n'a pas encore démarrer le compteur, on le démarre
+                        if start_tol_time is None :
+                            start_tol_time = time.time()
 
-                    # On décrémente la tolérance
-                    self.tol_s = last_tol_s - (time.time() - start_tol_time)
+                        # On décrémente la tolérance
+                        self.tol_s = last_tol_s - (time.time() - start_tol_time)
             
             # Monitoring du score ou écran de féliciation
             if self.time_counter_s >= objective :
