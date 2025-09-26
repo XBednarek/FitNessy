@@ -64,16 +64,32 @@ RGB_BLACK_TEXT = (0,0,0)
 
 
 # Nom des fenêtres : ne pas mettre d'accent !
-WIN_NAME_DEFAULT = "MediaPipe"
-WIN_NAME_TITLE = "Bienvenue"
-WIN_NAME_PUSHUP = "Pompes !"
-WIN_NAME_HEELS2BUTTOCKS= "Talons fesses !"
-WIN_NAME_KNEERAISE = "Montees de genoux !"
-WIN_NAME_SQUATS = "Squats !"
-WIN_NAME_MEDITATION_POSE = "Meditation pose !"
-WIN_NAME_PLANK = "Planche!"
-WIN_NAME_COBRA = "Cobra!"
-WIN_NAME_TREE_POSE = "Tree pose !"
+KEEP_WIN_OPEN = True
+if not KEEP_WIN_OPEN :
+    WIN_NAME_DEFAULT = "MediaPipe"
+    WIN_NAME_TITLE = "Bienvenue"
+    WIN_NAME_PUSHUP = "Pompes !"
+    WIN_NAME_HEELS2BUTTOCKS= "Talons fesses !"
+    WIN_NAME_KNEERAISE = "Montees de genoux !"
+    WIN_NAME_SQUATS = "Squats !"
+    WIN_NAME_MEDITATION_POSE = "Meditation pose !"
+    WIN_NAME_PLANK = "Planche!"
+    WIN_NAME_COBRA = "Cobra!"
+    WIN_NAME_TREE_POSE = "Tree pose !"
+else :
+    WIN_NAME_DEFAULT = "Fitness"
+    WIN_NAME_TITLE = "Fitness"
+    WIN_NAME_PUSHUP = "Fitness"
+    WIN_NAME_HEELS2BUTTOCKS= "Fitness"
+    WIN_NAME_KNEERAISE = "Fitness"
+    WIN_NAME_SQUATS = "Fitness"
+    WIN_NAME_MEDITATION_POSE = "Fitness"
+    WIN_NAME_PLANK = "Fitness"
+    WIN_NAME_COBRA = "Fitness"
+    WIN_NAME_TREE_POSE = "Fitness"
+# RQ : c'est hyper salle de faire comme ca ! On ne devrait
+# pas changer le comportement de l'application via ce fichier,
+# (ce n'est pas un fichier config...) mais bon ...
 
 # Durée de la fenètre de félicitations
 CONGRATS_DURATION_S = 5 # En secondes 
