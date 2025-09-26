@@ -121,7 +121,9 @@ class PoseDetector(Detector):
                 # Si on ne détecte pas la position attendue
                 else  :
 
-                    flag = True
+                    if not flag :
+                        last_tol_s = self.tol_s
+                        flag = True
 
                     # On retient la valeur du précédent décompte
                     last_time_counter_s = self.time_counter_s
