@@ -347,6 +347,55 @@ class App :
         cv2.putText(screen, text2, (x_center-250, y_center), font, font_scale, cst.RGB_BLACK_TEXT, thickness, cv2.LINE_AA)
         cv2.putText(screen, text3, (x_center-250, y_center+100), font, font_scale, cst.RGB_BLACK_TEXT, thickness, cv2.LINE_AA)
 
+        self.img_exo = {
+            "Pompes": cv2.imread("fitness/img_exo/Pompes.jpg"),
+            "Talons-fesses": cv2.imread("fitness/img_exo/Talons-fesses.jpg"),
+            "Montees de genoux": cv2.imread("fitness/img_exo/Montees de genoux.jpg"),
+            "Squats": cv2.imread("fitness/img_exo/Squat.jpg"),
+            "Tree Pose": cv2.imread("fitness/img_exo/Tree pose.webp"),
+            "Meditation pose": cv2.imread("fitness/img_exo/Meditation pose.jpg"),
+            "Planche": cv2.imread("fitness/img_exo/Planche.webp"),
+            "Cobra": cv2.imread("fitness/img_exo/Cobra.jpg"),
+        }
+
+        # Dictionnaire séparé avec le facteur pour chaque image
+        scale_factors = {
+            "Pompes": 0.15,
+            "Talons-fesses": 0.15,
+            "Montees de genoux": 0.15,
+            "Squats": 0.15,
+            "Tree Pose": 0.15,
+            "Meditation pose": 0.15,
+            "Planche": 0.15,
+            "Cobra": 0.3,
+        }
+
+        # Dans show_next_exercise
+        if exo_name in self.img_exo:
+            img = self.img_exo[exo_name]
+            if img is not None:
+                scale_factor = scale_factors.get(exo_name, 0.2)  # valeur par défaut si absent
+                img_h, img_w = img.shape[:2]
+
+                new_w = int(img_w * scale_factor)
+                new_h = int(img_h * scale_factor)
+                img_resized = cv2.resize(img, (new_w, new_h))
+
+                x_offset = self.screen_width - new_w - 20
+                y_offset = self.screen_height - new_h - 20
+
+                screen[y_offset:y_offset+new_h, x_offset:x_offset+new_w] = img_resized
+            else:
+                print(f"⚠️ Image pour '{exo_name}' non trouvée !")
+
+
+
+
+
+
+
+
+
         # Affichage quelques secondes
         cv2.imshow(win, screen)
         cv2.waitKey(3000)  
