@@ -4,7 +4,7 @@
 
 """Script pour lancer l'application de fitess via fast API"""
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse, HTMLResponse
 from threading import Thread
 import queue
@@ -15,12 +15,15 @@ import fitness.constants as cst
 app = FastAPI()
 
 # Queue pour passer les frames entre threads
+# Pour les images
 frame_queue = queue.Queue(maxsize=2)
+# Pour les actions de l'utilisateurs
+action_queue = queue.Queue()
 
 # Fonction qui démarre l'application de fitness
 def startfitness():
     # Création de l'app :
-    fitnessapp = App(verbose=True, frame_queue=frame_queue)
+    fitnessapp = App(verbose=True, fast_api_queues=(frame_queue, action_queue))
     # Lancement de l'app :
     exos = {cst.EX_PLANK: 15,cst.EX_SQUATS: 3, cst.EX_PUSH_UP: 3,cst.EX_PLANK: 5}
     fitnessapp.run_exercice_session(exos)
@@ -57,6 +60,13 @@ async def video_feed():
         media_type="multipart/x-mixed-replace; boundary=frame"
     )
 
+@app.post("/action")
+async def send_action(request: Request):
+    """Reçoit l'action du bouton"""
+    data = await request.json()
+    action_queue.put(data["message"])
+    return {"status": "ok"}
+
 # HTML d'affichage
 @app.get("/", response_class=HTMLResponse)
 async def index():
@@ -70,6 +80,19 @@ async def index():
     <body>
         <h1>Flux Vidéo en Direct</h1>
         <img src="/video_feed" width="640" height="480">
+        <br>
+        <button onclick="sendAction()">Next</button>
+
+        <script>
+            async function sendAction() {
+                await fetch('/action', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({message: "quit"})
+                });
+            }
+        </script>
+
     </body>
     </html>
     """
