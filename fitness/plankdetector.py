@@ -1,7 +1,7 @@
 # Import relatif dans le package :
 from .posedetector import PoseDetector
 from . import constants as cst # <-- Pour utiliser les constantes
-from .tools import calcul_angle
+from .tools import calcul_angle,get_points_visibles
 # (Pour exécuter ce fichier, il faut donc faire proprement depuis l'extérieur du package)
 # Exemple : uv run python3 -m fitness.pushupdetector
 
@@ -37,7 +37,7 @@ class PlankDetector(PoseDetector):
     # Implémentation de la méthode abstraite de la classe mère Detector
     def detect(self, positions: np.ndarray, visibility: np.ndarray) -> str:
         """detect if the person is doing plank exercice"""
-        if self.is_elbow_ankle_aligned_y(positions) and self.check_plank_angle(positions) :
+        if self.is_elbow_ankle_aligned_y(positions) and self.check_plank_angle(positions,visibility) :
             return 'plank'
         else :
             return 'other' 
@@ -71,7 +71,7 @@ class PlankDetector(PoseDetector):
         # chek if ankel and elbow are more or less at the same y
         return max(y_values)-min(y_values) < tolerance
     
-    def check_plank_angle(self,position) :
+    def check_plank_angle(self,position,visibility) :
 
         """Check if the shoulder-hip-knee angles are approximately straight on at least one side
             to verify a proper plank posture.
@@ -87,23 +87,36 @@ class PlankDetector(PoseDetector):
 
         """
 
-        # retrieve coordinate needed
-        right_knee_coordinate = position[cst.RIGHT_KNEE]
-        left_knee_coordinate  = position[cst.LEFT_KNEE]
-        right_hip_coordinate = position[cst.RIGHT_HIP]
-        left_hip_coordinate  = position[cst.LEFT_HIP]
-        right_shoulder_coordinate = position[cst.RIGHT_SHOULDER]
-        left_shoulder_coordinate  = position[cst.LEFT_SHOULDER]
-        right_elbow_coordinate = position[cst.RIGHT_ELBOW]
-        left_elbow_coordinate  = position[cst.LEFT_ELBOW]
-        
+        points_to_check= {
+                 "left_wrist": cst.LEFT_WRIST,
+                "right_wrist": cst.RIGHT_WRIST,
+                "left_shoulder":cst.LEFT_SHOULDER,
+                "right_shoulder":cst.RIGHT_SHOULDER,
+                "left_hip": cst.LEFT_HIP,
+                "right_hip": cst.RIGHT_HIP
+           
+                
+            }
+        # choisir le côté détecté
+        points_visibles=get_points_visibles(position, visibility, points_indices=points_to_check,image_shape=self.frame.shape)
 
-        # calcul angle  shoulder hip knee
-        angle_right = calcul_angle(right_elbow_coordinate,right_shoulder_coordinate,right_hip_coordinate)
-        angle_left = calcul_angle (left_elbow_coordinate,left_shoulder_coordinate,left_hip_coordinate)
+        if points_visibles and "right_wrist" in points_visibles and "right_shoulder" in points_visibles and "right_hip" in points_visibles:
+            pos1, pos2, pos3 = points_visibles["right_wrist"], points_visibles["right_shoulder"], points_visibles["right_hip"] # detecter le coté droit
+         
+        elif points_visibles and "left_wrist" in points_visibles and "left_shoulder" in points_visibles and "left_hip" in points_visibles:
+            pos1, pos2, pos3 = points_visibles["left_wrist"], points_visibles["left_shoulder"], points_visibles["left_hip"] # detecter le coté gauche 
+        else:
+            pos1 = None
+            pos2 = None
+            pos3 = None
 
-        # tolerance around 180°
-        return 80< angle_right < 100 or 80< angle_left < 100
+
+        if pos1 and pos2 and pos3: # si les trois points sont dectectés, on calcule l'angle
+            angle = calcul_angle(pos1, pos2, pos3)
+            if 80 < angle < 100:
+                return True
+            else:
+                return False
 
 if __name__=='__main__':
     # Tests
@@ -118,5 +131,5 @@ if __name__=='__main__':
     # Réglage de la verbosité
     verbose = True
     meditationpose_detector = PlankDetector(mediapipe_model, cap, verbose, show_landmark=True)
-    meditationpose_detector.run(objective=4)
+    meditationpose_detector.run(objective=40)
         
