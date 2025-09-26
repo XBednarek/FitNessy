@@ -7,8 +7,8 @@ SCREEN_H_DEV = 720
 SCREEN_W_DEV = 1280
 
 # Résolution de l'écran pour l'utilisateur
-SCREEN_H = 360
-SCREEN_W = 640
+SCREEN_H = 720
+SCREEN_W = 1280
 
 # POSITION DU CORPS : 
 
