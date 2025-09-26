@@ -2,6 +2,8 @@
 # uv run uvicorn main_fastapi:app --host 127.0.0.1 --port 8789
 # Puis ouvrir dans un navigateur : http://localhost:8789/
 
+# RQ : c'est claude.ai qui m'a aidé à faire le javascript et html !
+
 """Script pour lancer l'application de fitess via fast API"""
 
 from fastapi import FastAPI, Request
@@ -64,7 +66,7 @@ async def video_feed():
 async def send_action(request: Request):
     """Reçoit l'action du bouton"""
     data = await request.json()
-    action_queue.put(data["message"])
+    action_queue.put(data)
     return {"status": "ok"}
 
 # HTML d'affichage
@@ -79,7 +81,7 @@ async def index():
     </head>
     <body>
         <h1>Flux Vidéo en Direct</h1>
-        <img src="/video_feed" width="640" height="480">
+        <img src="/video_feed" width="640" height="480" onclick="clickOnVideo(event)">
         <br>
         <button onclick="sendAction()">Next</button>
 
@@ -88,9 +90,32 @@ async def index():
                 await fetch('/action', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({message: "quit"})
+                    body: JSON.stringify({action: "quit"})
                 });
             }
+
+            async function clickOnVideo(event) {
+                const img = event.target;
+                const rect = img.getBoundingClientRect();
+                
+                // Position du clic par rapport à l'image
+                const x = Math.round(event.clientX - rect.left);
+                const y = Math.round(event.clientY - rect.top);
+                
+                // Envoyer les coordonnées
+                await fetch('/action', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        action: "click_video",
+                        x: x,
+                        y: y
+                    })
+                });
+                
+                console.log(`Clic à la position: x=${x}, y=${y}`);
+            }
+
         </script>
 
     </body>

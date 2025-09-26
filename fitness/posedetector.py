@@ -163,13 +163,13 @@ class PoseDetector(Detector):
             if self.time_counter_s >= objective :
                 cv2.waitKey( cst.CONGRATS_DURATION_S * 1000)
                 break
-
+            
             # Vérifier s'il y a des actions à faire via FastAPI
             if self.action_queue is not None and not self.action_queue.empty():
                 action = self.action_queue.get()
                 if self.verbose :
                     print(f"Action reçue: {action}")  # Ici vous faites ce que vous voulez
-                if action=="quit":
+                if action["action"] == "quit" :
                     break
                 else :
                     # Est-ce qu'il faut remettre l'action dans la queue ?
