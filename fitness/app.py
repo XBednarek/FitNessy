@@ -18,6 +18,11 @@ import numpy as np
 import cv2
 import mediapipe as mp
 from screeninfo import get_monitors
+from src.features_extraction import FeaturesExtraction
+from src import extract_landmark
+
+# import falling detectors
+
 
 class App :
     """
@@ -132,11 +137,11 @@ class App :
         print(f"{screen.shape =}")
         screen = to_uint8(screen)
         # 3 - Rectangles pour cliquer :
-        rect_go = Rectangle(screen, A=(0.25, 0.8), B=(0.50, 0.9), text='Choisir Niveau!',
+        rect_go = Rectangle(screen, A=(0.15, 0.8), B=(0.45, 0.9), text='Choisir Niveau!',
                                       line_color=cst.BGR_NESSY_ORANGE, line_thickness=2,
                                       text_color=cst.BGR_NESSY_ORANGE, text_font=cv2.FONT_HERSHEY_SIMPLEX,
                                       text_thickness=2, text_font_scale=1*self.screen_scale)
-        rect_quit = Rectangle(screen, A=(0.55, 0.8), B=(0.80, 0.9), text='Quit',
+        rect_quit = Rectangle(screen, A=(0.55, 0.8), B=(0.85, 0.9), text='Quit',
                                       line_color=cst.BGR_NESSY_BLUE, line_thickness=2,
                                       text_color=cst.BGR_NESSY_BLUE, text_font=cv2.FONT_HERSHEY_SIMPLEX,
                                       text_thickness=2, text_font_scale=1*self.screen_scale)
@@ -220,26 +225,26 @@ class App :
         screen = to_uint8(screen)
         # creat the 3 buttons
 
-        rect_go = Rectangle(screen, A=(0.37, 0.8), B=(0.46, 0.9), text='Go!',
+        rect_go = Rectangle(screen, A=(0.30, 0.8), B=(0.46, 0.9), text='Go!',
                                       line_color=cst.BGR_NESSY_ORANGE, line_thickness=2,
                                       text_color=cst.BGR_NESSY_ORANGE, text_font=cv2.FONT_HERSHEY_SIMPLEX,
                                       text_thickness=2, text_font_scale=1*self.screen_scale)
-        rect_quit = Rectangle(screen, A=(0.54, 0.8), B=(0.63, 0.9), text='Quit',
+        rect_quit = Rectangle(screen, A=(0.54, 0.8), B=(0.70, 0.9), text='Quit',
                                       line_color=cst.BGR_NESSY_BLUE, line_thickness=2,
                                       text_color=cst.BGR_NESSY_BLUE, text_font=cv2.FONT_HERSHEY_SIMPLEX,
                                       text_thickness=2, text_font_scale=1*self.screen_scale)
         
-        rect_facile = Rectangle(screen, A=(0.3, 0.4), B=(0.45, 0.5), text='Facile',
-                                line_color=cst.DIFFICULTY_MID_GREY, line_thickness=2,
-                                text_color=cst.DIFFICULTY_MID_GREY, text_font=cv2.FONT_HERSHEY_SIMPLEX,
+        rect_facile = Rectangle(screen, A=(0.15, 0.4), B=(0.35, 0.5), text='Facile',
+                                line_color=cst.RGB_DIFFICULTY_MID_GREY, line_thickness=2,
+                                text_color=cst.RGB_DIFFICULTY_MID_GREY, text_font=cv2.FONT_HERSHEY_SIMPLEX,
                                 text_thickness=2, text_font_scale=1*self.screen_scale)
-        rect_moyen = Rectangle(screen, A=(0.5, 0.4), B=(0.65, 0.5), text='Moyen',
-                                line_color=cst.DIFFICULTY_MID_GREY, line_thickness=2,
-                                text_color=cst.DIFFICULTY_MID_GREY, text_font=cv2.FONT_HERSHEY_SIMPLEX,
+        rect_moyen = Rectangle(screen, A=(0.40, 0.4), B=(0.60, 0.5), text='Moyen',
+                                line_color=cst.RGB_DIFFICULTY_MID_GREY, line_thickness=2,
+                                text_color=cst.RGB_DIFFICULTY_MID_GREY, text_font=cv2.FONT_HERSHEY_SIMPLEX,
                                 text_thickness=2, text_font_scale=1*self.screen_scale)
-        rect_difficile = Rectangle(screen, A=(0.7, 0.4), B=(0.85, 0.5), text='Difficile',
-                                line_color=cst.DIFFICULTY_MID_GREY, line_thickness=2,
-                                text_color=cst.DIFFICULTY_MID_GREY, text_font=cv2.FONT_HERSHEY_SIMPLEX,
+        rect_difficile = Rectangle(screen, A=(0.65, 0.4), B=(0.85, 0.5), text='Difficile',
+                                line_color=cst.RGB_DIFFICULTY_MID_GREY, line_thickness=2,
+                                text_color=cst.RGB_DIFFICULTY_MID_GREY, text_font=cv2.FONT_HERSHEY_SIMPLEX,
                                 text_thickness=2, text_font_scale=1*self.screen_scale)
         
 
@@ -247,19 +252,19 @@ class App :
             current_screen = screen.copy()
             cv2.imshow(win, current_screen)
 
-            rect_facile = Rectangle(current_screen, A=(0.3, 0.4), B=(0.45, 0.5), text='Facile',
-                                line_color=cst.BGR_NESSY_ORANGE if choice == "facile" else cst.DIFFICULTY_MID_GREY, line_thickness=2,
-                                text_color=cst.BGR_NESSY_ORANGE if choice == "facile" else cst.DIFFICULTY_MID_GREY,
+            rect_facile = Rectangle(current_screen, A=(0.15, 0.4), B=(0.35, 0.5), text='Facile',
+                                line_color=cst.BGR_NESSY_ORANGE if choice == "facile" else cst.RGB_DIFFICULTY_MID_GREY, line_thickness=2,
+                                text_color=cst.BGR_NESSY_ORANGE if choice == "facile" else cst.RGB_DIFFICULTY_MID_GREY,
                                 text_font=cv2.FONT_HERSHEY_SIMPLEX, text_thickness=2,
                                 text_font_scale=1*self.screen_scale)
-            rect_moyen = Rectangle(current_screen, A=(0.5, 0.4), B=(0.65, 0.5), text='Moyen',
-                                line_color=cst.BGR_NESSY_ORANGE if choice == "moyen" else cst.DIFFICULTY_MID_GREY, line_thickness=2,
-                                text_color=cst.BGR_NESSY_ORANGE if choice == "moyen" else cst.DIFFICULTY_MID_GREY,
+            rect_moyen = Rectangle(current_screen, A=(0.40, 0.4), B=(0.60, 0.5), text='Moyen',
+                                line_color=cst.BGR_NESSY_ORANGE if choice == "moyen" else cst.RGB_DIFFICULTY_MID_GREY, line_thickness=2,
+                                text_color=cst.BGR_NESSY_ORANGE if choice == "moyen" else cst.RGB_DIFFICULTY_MID_GREY,
                                 text_font=cv2.FONT_HERSHEY_SIMPLEX, text_thickness=2,
                                 text_font_scale=1*self.screen_scale)
-            rect_difficile = Rectangle(current_screen, A=(0.7, 0.4), B=(0.85, 0.5), text='Difficile',
-                                line_color=cst.BGR_NESSY_ORANGE if choice == "difficile" else cst.DIFFICULTY_MID_GREY, line_thickness=2,
-                                text_color=cst.BGR_NESSY_ORANGE if choice == "difficile" else cst.DIFFICULTY_MID_GREY,
+            rect_difficile = Rectangle(current_screen, A=(0.65, 0.4), B=(0.85, 0.5), text='Difficile',
+                                line_color=cst.BGR_NESSY_ORANGE if choice == "difficile" else cst.RGB_DIFFICULTY_MID_GREY, line_thickness=2,
+                                text_color=cst.BGR_NESSY_ORANGE if choice == "difficile" else cst.RGB_DIFFICULTY_MID_GREY,
                                 text_font=cv2.FONT_HERSHEY_SIMPLEX, text_thickness=2,
                                 text_font_scale=1*self.screen_scale)
 
@@ -432,6 +437,7 @@ if __name__=='__main__':
     app = App(verbose=True)
 
 
+
     # Run de l'écran test :
     go = app.show_start_screen()
 
@@ -446,7 +452,7 @@ if __name__=='__main__':
 
         # according to dificulty, different set of exercice
         if difficulty == "facile":
-            exos = {cst.EX_SQUATS: 3, cst.EX_PUSH_UP: 3,cst.EX_PLANK: 5}
+            exos = {cst.EX_PLANK: 5,cst.EX_SQUATS: 3, cst.EX_PUSH_UP: 3,cst.EX_PLANK: 5}
 
         elif difficulty == "moyen":
             exos = {cst.EX_SQUATS: 5, 

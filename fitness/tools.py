@@ -24,37 +24,38 @@ def landmark2array(pose_landmarks) -> np.ndarray :
 def landmark2array_visibility(pose_landmarks) -> np.ndarray :
     """Extraire la visibility
 
+
     Args:
         pose_landmarks : pose_landmarks as given by results.pose_landmarks
 
     Returns:
-        np.ndarray: numpy array shape = (33, 1)
+        np.ndarray: numpy array shape = (33, 3)
     """
     return np.array([[landmark.visibility] for landmark in pose_landmarks.landmark], dtype=np.float32)
 
-def get_points_visibles(positions, visibilities, points_indices :np.array, image_shape, seuil: float = 0.5) :
-    """
-    Vérifie si un landmark est visible au-dessus d'un seuil.
-    Args:
-        points_indices (int): index du point (0-32)
-        images_shape: hauteur et longeur
-        seuil (float): seuil de visibilité (0-1)
-    Returns:
-        points_visible: x_pixels_visible,y_pixels_visible
-    """
+def get_points_visibles(positions:np.ndarray, visibilities:np.ndarray, points_indices :np.ndarray, image_shape, seuil: float = 0.5) :
+        """
+        Vérifie si un landmark est visible au-dessus d'un seuil.
+        Args:
+            points_indices (int): index du point (0-32)
+            images_shape: hauteur et longeur
+            seuil (float): seuil de visibilité (0-1)
+        Returns:
+            points_visible: x_pixels_visible,y_pixels_visible
+        """
 
-    h,w, _ = image_shape
+        h,w, _ = image_shape
 
-    points_visible={}
+        points_visible={}
 
-    # normaliser l'image et detecter quel coté est plus visible que l'autre
-    for  name,idx in points_indices.items():
-        vis=visibilities[idx,0]
-        if vis > seuil:
-            x,y = positions[idx,0],positions[idx,1]
-            points_visible[name]= (int(x * w), int(y * h))
+        # normaliser l'image et detecter quel coté est plus visible que l'autre
+        for  name,idx in points_indices.items():
+            vis=visibilities[idx,0]
+            if vis > seuil:
+                x,y = positions[idx,0],positions[idx,1]
+                points_visible[name]= (int(x * w), int(y * h))
 
-    return points_visible
+        return points_visible
 
 
 def image2position(image : np.ndarray, mediapipe_model, show:bool=False) -> np.ndarray | None:
