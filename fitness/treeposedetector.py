@@ -8,6 +8,7 @@ from .tools import calc_distance
 # Autres imports
 import numpy as np
 import cv2
+from queue import Queue
 
 class TreePoseDetector(PoseDetector):
 
@@ -17,12 +18,14 @@ class TreePoseDetector(PoseDetector):
 
     def __init__(self, mediapipe_model, cap, verbose:bool = False,
                                              show_landmark:bool = False,
-                                             windows_name:str = cst.WIN_NAME_TREE_POSE) -> None:
+                                             windows_name:str = cst.WIN_NAME_HEELS2BUTTOCKS,
+                                             frame_queue:Queue|None = None) -> None:
         """Constructeur"""
         # Appel explicite du constructeur parent
         super().__init__(mediapipe_model, cap, verbose=verbose,
                                                show_landmark=show_landmark,
                                                windows_name=windows_name,
+                                               frame_queue=frame_queue,
                                                reward_string = "sec. of tree pose !",
                                                pose_to_keep = "tree_pose",
                                                exo_name = "Tree Pose")

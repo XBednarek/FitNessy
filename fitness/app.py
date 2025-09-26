@@ -18,11 +18,7 @@ import numpy as np
 import cv2
 import mediapipe as mp
 from screeninfo import get_monitors
-from src.features_extraction import FeaturesExtraction
-from src import extract_landmark
-
-# import falling detectors
-
+from queue import Queue
 
 class App :
     """
@@ -32,7 +28,7 @@ class App :
     #                                                              Constructeur
     # -------------------------------------------------------------------------
 
-    def __init__(self, *, verbose:bool = False) -> None:
+    def __init__(self, *, verbose:bool = False, frame_queue:Queue|None = None) -> None:
         """Constructeur de l'application"""
         
         if verbose :
@@ -49,23 +45,26 @@ class App :
         # Est-ce qu'on se mets en mode mirroir
         self.mirror_mode = False
 
+        # Setup pour l'utilisation d'une queue qui pourra être utilisée par fastAPI
+        self.frame_queue = frame_queue
+
         # Construction des detecteurs :
         # Pompes
-        self.push_up_detector = PushUpDetector(self.mediapipe_model, self.cap, self.verbose)
+        self.push_up_detector = PushUpDetector(self.mediapipe_model, self.cap, self.verbose, frame_queue=self.frame_queue)
         # Talons-fesses
-        self.heels_2_buttocks_detector = Heels2ButtocksDetector(self.mediapipe_model, self.cap, self.verbose)
+        self.heels_2_buttocks_detector = Heels2ButtocksDetector(self.mediapipe_model, self.cap, self.verbose, frame_queue=self.frame_queue)
         # Squats
-        self.squats_detector = SquatDetector(self.mediapipe_model, self.cap, self.verbose)
+        self.squats_detector = SquatDetector(self.mediapipe_model, self.cap, self.verbose, frame_queue=self.frame_queue)
         # Montée de genou
-        self.knee_raise_detector = KneeRaiseDetector(self.mediapipe_model, self.cap, self.verbose)
+        self.knee_raise_detector = KneeRaiseDetector(self.mediapipe_model, self.cap, self.verbose, frame_queue=self.frame_queue)
         # Positions de l'arbre
-        self.tree_pose_detector = TreePoseDetector(self.mediapipe_model, self.cap, self.verbose)
+        self.tree_pose_detector = TreePoseDetector(self.mediapipe_model, self.cap, self.verbose, frame_queue=self.frame_queue)
         # Planche
-        self.plank_detector = PlankDetector(self.mediapipe_model, self.cap, self.verbose)
+        self.plank_detector = PlankDetector(self.mediapipe_model, self.cap, self.verbose, frame_queue=self.frame_queue)
         # Médiation
-        self.meditation_pose_detector = MeditationPoseDetector(self.mediapipe_model, self.cap, self.verbose)
+        self.meditation_pose_detector = MeditationPoseDetector(self.mediapipe_model, self.cap, self.verbose, frame_queue=self.frame_queue)
         # Position du Cobra (yoga)
-        self.cobra_detector = Cobradetector(self.mediapipe_model, self.cap, self.verbose)
+        self.cobra_detector = Cobradetector(self.mediapipe_model, self.cap, self.verbose, frame_queue=self.frame_queue)
 
         # Positions de cliques de la souris
         self.left_clicked_x = -1
@@ -423,6 +422,25 @@ class App :
         screen_width = monitors[0].width
         screen_height = monitors[0].height
         return (screen_width, screen_height)
+    
+    # -------------------------------------------------------------------------
+    #                                                    Méthodes pour fast API
+    # -------------------------------------------------------------------------
+
+    def generate_frames(self):
+        """Générateur qui yield les frames au format MJPEG"""
+        while True:
+            try:
+                # Récupérer une frame de la queue
+                frame_bytes = self.frame_queue.get(timeout=1)
+                
+                # Format MJPEG stream
+                yield (b'--frame\r\n'
+                    b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+                    
+            except queue.Empty:
+                # Pas de nouvelle frame disponible
+                continue
         
 
 if __name__=='__main__':

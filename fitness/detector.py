@@ -9,8 +9,9 @@ import numpy as np
 import cv2
 import mediapipe as mp
 from src.features_extraction import FeaturesExtraction
-from src import extract_landmark
 import time
+from queue import Queue
+
 
 class Detector :
     """
@@ -23,7 +24,8 @@ class Detector :
     def __init__(self, mediapipe_model, cap, verbose:bool = False,
                                              show_landmark:bool = False,
                                              windows_name:str = cst.WIN_NAME_DEFAULT,
-                                             reward_string:str = "") -> None:
+                                             reward_string:str = "",
+                                             frame_queue:Queue|None = None) -> None:
         """"""
         # Modèle mediapipe
         self.mediapipe_model = mediapipe_model
@@ -49,7 +51,8 @@ class Detector :
         self.fall_detector = FeaturesExtraction()
         self.fall_detected = False
         self.fall_start_time = None
-
+        # Queue for Fast-API use
+        self.frame_queue = frame_queue
     
     # -------------------------------------------------------------------------
     #                                                       Méthodes Abstraites
@@ -160,8 +163,16 @@ class Detector :
             else:
                 self.fall_detected = False
 
-       
-        cv2.imshow(self.windows_name, cv2.cvtColor(self.image, cv2.COLOR_RGB2BGR))
+        if self.frame_queue is None :
+            cv2.imshow(self.windows_name, cv2.cvtColor(self.image, cv2.COLOR_RGB2BGR))
+        else :
+            # Encoder en JPEG
+            _, buffer = cv2.imencode('.jpg', cv2.cvtColor(self.image, cv2.COLOR_RGB2BGR))
+            frame_bytes = buffer.tobytes()
+            
+            # Ajouter à la queue (non-bloquant)
+            if not self.frame_queue.full():
+                self.frame_queue.put(frame_bytes)
 
 
     def close(self):

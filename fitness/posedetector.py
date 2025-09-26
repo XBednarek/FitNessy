@@ -8,6 +8,7 @@ from . import constants as cst # <-- Pour utiliser les constantes
 import numpy as np
 import cv2
 import time
+from queue import Queue
 
 class PoseDetector(Detector):
 
@@ -19,6 +20,7 @@ class PoseDetector(Detector):
                                              show_landmark:bool = False,
                                              windows_name:str = cst.WIN_NAME_DEFAULT,
                                              reward_string:str = "",
+                                             frame_queue:Queue|None = None,
                                              pose_to_keep:str="",
                                              exo_name: str="") -> None:
         """Constructeur d'un détecteur de mouvement"""
@@ -26,7 +28,8 @@ class PoseDetector(Detector):
         super().__init__(mediapipe_model, cap, verbose=verbose,
                                                show_landmark=show_landmark,
                                                windows_name=windows_name,
-                                               reward_string=reward_string)
+                                               reward_string=reward_string,
+                                               frame_queue=frame_queue)
 
         # Position à maintenir
         self.pose_to_keep = pose_to_keep

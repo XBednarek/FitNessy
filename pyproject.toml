@@ -5,6 +5,7 @@ description = "Projet ACV #2 : création d'une application de fitess"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "fastapi>=0.117.1",
     "joblib>=1.5.2",
     "jupyter>=1.1.1",
     "keras>=3.11.3",
@@ -16,4 +17,5 @@ dependencies = [
     "scikit-learn>=1.7.2",
     "screeninfo>=0.8.1",
     "tensorflow>=2.18.1",
+    "uvicorn>=0.37.0",
 ]

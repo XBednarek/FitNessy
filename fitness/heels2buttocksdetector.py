@@ -8,6 +8,7 @@ from .tools import calc_distance
 # Autres imports
 import numpy as np
 import cv2
+from queue import Queue
 
 class Heels2ButtocksDetector(MoveDetector):
 
@@ -17,12 +18,14 @@ class Heels2ButtocksDetector(MoveDetector):
 
     def __init__(self, mediapipe_model, cap, verbose:bool = False,
                                              show_landmark:bool = False,
-                                             windows_name:str = cst.WIN_NAME_HEELS2BUTTOCKS) -> None:
+                                             windows_name:str = cst.WIN_NAME_HEELS2BUTTOCKS,
+                                             frame_queue:Queue|None = None) -> None:
         """Constructeur"""
         # Appel explicite du constructeur parent
         super().__init__(mediapipe_model, cap, verbose=verbose,
                                                show_landmark=show_landmark,
                                                windows_name=windows_name,
+                                               frame_queue=frame_queue,
                                                reward_string = "heels to buttocks !",
                                                movement_cycle = ["left_up_right_down", "left_down_right_up"],
                                                exo_name = "Heels to buttocks")
