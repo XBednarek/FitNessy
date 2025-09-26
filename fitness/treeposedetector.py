@@ -32,7 +32,7 @@ class TreePoseDetector(PoseDetector):
     # -------------------------------------------------------------------------
 
     # Implémentation de la méthode abstraite de la classe mère Detector
-    def detect(self, positions: np.ndarray) -> str:
+    def detect(self, positions: np.ndarray, visibility: np.ndarray) -> str:
         """Détecte une position"""
         if self.treepose_detector(positions):
             return 'tree_pose'

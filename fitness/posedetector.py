@@ -72,11 +72,14 @@ class PoseDetector(Detector):
 
             # Récupération de l'array des positions
             positions = self.getPositions()
+
+            # Récupération de l'array des visibilités
+            visibility = self.getVisibility()
             
             if positions is not None :
 
                 # Détection :
-                detected_pose = self.detect(positions)
+                detected_pose = self.detect(positions, visibility)
 
                 # Affichage
                 if self.verbose :

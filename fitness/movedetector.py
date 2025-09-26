@@ -70,11 +70,14 @@ class MoveDetector(Detector):
 
             # Récupération de l'array des positions
             positions = self.getPositions()
+
+            # Récupération de l'array des visibilités
+            visibility = self.getVisibility()
             
             if positions is not None :
 
                 # Détection :
-                self.detected_pose = self.detect(positions)
+                self.detected_pose = self.detect(positions, visibility)
 
                 # Affichage
                 if self.verbose :

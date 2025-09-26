@@ -1,5 +1,5 @@
 # Import relatif dans le package :
-from .tools import landmark2array
+from .tools import landmark2array, landmark2array_visibility
 from . import constants as cst # <-- Pour utiliser les constantes
 # (Pour exécuter ce fichier, il faut donc faire proprement depuis l'extérieur du package)
 # Exemple : uv run python3 -m fitness.detector
@@ -54,7 +54,7 @@ class Detector :
         raise NotImplementedError("Cette fonction doit être implémentée dans la classe fille !")
         
     # Abstraite !
-    def detect(self, positions: np.ndarray) -> str:
+    def detect(self, positions: np.ndarray, visibility: np.ndarray) -> str:
         """Détecte une position"""
         raise NotImplementedError("Cette fonction doit être implémentée dans la classe fille !")
     
@@ -105,6 +105,13 @@ class Detector :
         else :
             return None
 
+    def getVisibility(self) -> np.ndarray | None :
+        """Renvoie l'array numpy des visibility détectées"""
+
+        if (self.results is not None) and (self.results.pose_landmarks is not None) :
+            return landmark2array_visibility(self.results.pose_landmarks)
+        else :
+            return None
 
     def imshow(self):
         """Affichage de l'image"""

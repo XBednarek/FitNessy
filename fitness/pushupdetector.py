@@ -34,7 +34,7 @@ class PushUpDetector(MoveDetector):
     # -------------------------------------------------------------------------
 
     # Implémentation de la méthode abstraite de la classe mère Detector
-    def detect(self, positions: np.ndarray, methode: str = "Analytics") -> str :
+    def detect(self, positions: np.ndarray, visibility: np.ndarray, methode: str = "Analytics") -> str :
         """ Get the array of positions and detect if the position is "up",
             "down" or "other". 
             We can choose if we do the detection with or without ML

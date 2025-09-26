@@ -32,7 +32,7 @@ class PlankDetector(PoseDetector):
     # -------------------------------------------------------------------------
 
     # Implémentation de la méthode abstraite de la classe mère Detector
-    def detect(self, positions) -> str:
+    def detect(self, positions: np.ndarray, visibility: np.ndarray) -> str:
         """detect if the person is doing plank exercice"""
         if self.is_elbow_ankle_aligned_y(positions) and self.check_plank_angle(positions) :
             return 'plank'

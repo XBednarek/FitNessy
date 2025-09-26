@@ -32,7 +32,7 @@ class Heels2ButtocksDetector(MoveDetector):
     # -------------------------------------------------------------------------
 
     # Implémentation de la méthode abstraite de la classe mère Detector
-    def detect(self, positions: np.ndarray) -> str:
+    def detect(self, positions: np.ndarray, visibility: np.ndarray) -> str:
         """Détecte une position"""
         if self.heels2buttocks_left_up_detector(positions) and self.heels2buttocks_right_down_detector(positions):
             return 'left_up_right_down'
