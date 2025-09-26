@@ -21,6 +21,17 @@ def landmark2array(pose_landmarks) -> np.ndarray :
     """
     return np.array([[landmark.x, landmark.y, landmark.z] for landmark in pose_landmarks.landmark], dtype=np.float32)
 
+def visibility(pose_landmarks) -> np.ndarray :
+    """extraire la visibility
+
+    Args:
+        pose_landmarks : pose_landmarks as given by results.pose_landmarks
+
+    Returns:
+        np.ndarray: numpy array shape = (33, 3)
+    """
+    return np.array([[landmark.visibility] for landmark in pose_landmarks.landmark], dtype=np.float32)
+
 
 
 def image2position(image : np.ndarray, mediapipe_model, show:bool=False) -> np.ndarray | None:

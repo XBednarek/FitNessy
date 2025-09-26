@@ -1,5 +1,6 @@
 # Import relatif dans le package :
 from .tools import landmark2array
+from .tools import visibility
 from . import constants as cst # <-- Pour utiliser les constantes
 # (Pour exécuter ce fichier, il faut donc faire proprement depuis l'extérieur du package)
 # Exemple : uv run python3 -m fitness.detector
@@ -119,6 +120,43 @@ class Detector :
             return landmark2array(self.results.pose_landmarks)
         else :
             return None
+
+
+    def get_points_visibles(self, points_indices :np.array, image_shape, seuil: float = 0.5) :
+        """
+        Vérifie si un landmark est visible au-dessus d'un seuil.
+        Args:
+            points_indices (int): index du point (0-32)
+            images_shape: hauteur et longeur
+            seuil (float): seuil de visibilité (0-1)
+        Returns:
+            points_visible: x_pixels_visible,y_pixels_visible
+        """
+
+        h,w, _ = image_shape
+
+        points_visible={}
+
+     
+        if not self.results.pose_landmarks:
+            return None 
+        
+         # récupérer coordonnées et visibilité
+        positions = landmark2array(self.results.pose_landmarks)       # (33,3)
+        visibilities = visibility(self.results.pose_landmarks)        # (33,1)
+
+        # normaliser l'image et detecter quel coté est plus visible que l'autre
+        for  name,idx in points_indices.items():
+            vis=visibilities[idx,0]
+            if vis > seuil:
+                x,y = positions[idx,0],positions[idx,1]
+                points_visible[name]= (int(x * w), int(y * h))
+
+        return points_visible
+
+
+        
+    
 
 
     def imshow(self):
