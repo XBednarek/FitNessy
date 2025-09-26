@@ -452,25 +452,6 @@ class App :
         screen_width = monitors[0].width
         screen_height = monitors[0].height
         return (screen_width, screen_height)
-    
-    # -------------------------------------------------------------------------
-    #                                                    Méthodes pour fast API
-    # -------------------------------------------------------------------------
-
-    def generate_frames(self):
-        """Générateur qui yield les frames au format MJPEG"""
-        while True:
-            try:
-                # Récupérer une frame de la queue
-                frame_bytes = self.frame_queue.get(timeout=1)
-                
-                # Format MJPEG stream
-                yield (b'--frame\r\n'
-                    b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-                    
-            except queue.Empty:
-                # Pas de nouvelle frame disponible
-                continue
         
 
 if __name__=='__main__':
