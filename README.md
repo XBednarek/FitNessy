@@ -5,7 +5,7 @@ Application de fitness
 uv sync
 
 # Et pour lancer l'application :
-uv run main.py
+uv run python3 -m fitness.app
 
 # Si veut run juste un module du package fitnessy : (exemple avec app)
 uv run python3 -m fitness.app
