@@ -127,7 +127,7 @@ class MoveDetector(Detector):
                 action = self.action_queue.get()
                 if self.verbose :
                     print(f"Action reçue: {action}")  # Ici vous faites ce que vous voulez
-                if action=="quit":
+                if action["action"] == "quit" :
                     break
                 else :
                     # Est-ce qu'il faut remettre l'action dans la queue ?
