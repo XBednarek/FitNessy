@@ -48,6 +48,7 @@ class Detector :
         # String pour le reward
         self.reward_string = reward_string
         # fall detector 
+        self.fall_detection_is_on = False
         self.fall_detector = FeaturesExtraction()
         self.fall_detected = False
         self.fall_start_time = None
@@ -134,7 +135,7 @@ class Detector :
     def imshow(self):
         """Affichage de l'image"""
         
-        if self.fall_detected:
+        if self.fall_detection_is_on and self.fall_detected:
             elapsed = time.time() - self.fall_start_time
             if elapsed < 2:  
                 overlay = self.image.copy()
