@@ -34,6 +34,9 @@ class PoseDetector(Detector):
         # Compteur (en secondes):
         self.time_counter_s = 0
 
+        # Objectif (en secondes)
+        self.objective_s = None
+
         # Tolerance max (en secondes):
         self.tol_max_s = 5
 
@@ -42,6 +45,7 @@ class PoseDetector(Detector):
 
         # Nom de l'exercice :
         self.exo_name = exo_name
+
     
     # -------------------------------------------------------------------------
     #                                                                  Méthodes
@@ -52,6 +56,8 @@ class PoseDetector(Detector):
     def run(self, objective:int) -> float:
         """Run le décompte et renvoie le temps que l'exercice à été
            réalisé"""
+        
+        self.objective_s = objective
         
         start_detect_time = None
         start_tol_time = None
@@ -162,25 +168,58 @@ class PoseDetector(Detector):
     def displayScore(self) :
         """Affichage du score sur l'image"""
 
-        # TODO : mettre en positions relatives !
-
         # Define font spec
         font = cv2.FONT_HERSHEY_SIMPLEX
         font_scale = 0.5
         color = (0, 0, 0)
         thickness = 1
         
-        # Define positions for the text
-        position = (10, 20)
-        position2 = (10, 40) 
+        # Define positions for the text (relative)
+        position = (0.05, 0.05)
+        position2 = (0.05, 0.15)
+
+        # Largeur de la barre max en relative de l'image
+        bar_max_width = 0.5
 
         # Define text
-        text_count = f"{self.exo_name} : {self.time_counter_s:.1f} s"
-        text_tol   = f"Tolerance : {self.tol_s:.1f} s"
+        text_count = f"{self.exo_name} : "
+        text_tol   = f"Tolerance : "
 
-        # Displays
-        cv2.putText(self.image, text_count, position, font, font_scale, color, thickness, cv2.LINE_AA)
-        cv2.putText(self.image, text_tol, position2, font, font_scale, color, thickness, cv2.LINE_AA)
+        # Convert position : relative -> absolute
+        h, w, _ = self.image.shape
+        position_count = (int(round( position[0]*w)), int(round( position[1]*h)))
+        position_tol   = (int(round(position2[0]*w)), int(round(position2[1]*h)))
+        bar_max_width  = int(round(bar_max_width*w))
+        
+        # Displays texts
+        cv2.putText(self.image, text_count, position_count, font, font_scale, color, thickness, cv2.LINE_AA)
+        cv2.putText(self.image,   text_tol,   position_tol, font, font_scale, color, thickness, cv2.LINE_AA)
+
+        # Compute text field sizes
+        text_count_w, text_count_h = cv2.getTextSize(text_count, font, font_scale, thickness)[0]
+        text_tol_w,     text_tol_h = cv2.getTextSize(  text_tol, font, font_scale, thickness)[0]
+        text_max_w = max(text_count_w, text_tol_w)
+
+        # Barre de "chargement" (compteur)
+        bar_length = int(round(bar_max_width * self.time_counter_s / self.objective_s))
+        load_top_left         = (position_count[0] +    text_max_w, position_count[1] - text_count_h)
+        load_max_bottom_right = ( load_top_left[0] +   bar_max_width,  load_top_left[1] + text_count_h)
+        load_bottom_right     = ( load_top_left[0] +      bar_length,  load_top_left[1] + text_count_h)
+        cv2.rectangle(self.image, load_top_left, load_max_bottom_right, cst.RGB_NESSY_LIGHT_GREY, -1) # Background
+        cv2.rectangle(self.image, load_top_left,     load_bottom_right,     cst.RGB_NESSY_ORANGE, -1)
+
+        # Barre de "vie" (tolérance)
+        bar_length = int(round(bar_max_width * self.tol_s / self.tol_max_s))
+        life_top_left         = ( position_tol[0] +    text_max_w,  position_tol[1] - text_tol_h)
+        life_max_bottom_right = (life_top_left[0] + bar_max_width, life_top_left[1] + text_tol_h)
+        life_bottom_right     = (life_top_left[0] +    bar_length, life_top_left[1] + text_tol_h)
+        cv2.rectangle(self.image, life_top_left, life_max_bottom_right, cst.RGB_NESSY_LIGHT_GREY, -1) # Background
+        cv2.rectangle(self.image, life_top_left,     life_bottom_right,     cst.RGB_NESSY_BLUE, -1)
+
+        # Displays texts
+        text_count = f" ({self.time_counter_s:.1f} s) "
+        cv2.putText(self.image, text_count, load_max_bottom_right, font, font_scale, color, thickness, cv2.LINE_AA)
+        
 
     def booo(self) :
         """Affichage du booooo !"""
