@@ -386,7 +386,7 @@ class App :
 
                 screen[y_offset:y_offset+new_h, x_offset:x_offset+new_w] = img_resized
             else:
-                print(f"⚠️ Image pour '{exo_name}' non trouvée !")
+                print(f"Image pour '{exo_name}' non trouvée !")
 
 
 
