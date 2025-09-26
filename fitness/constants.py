@@ -60,6 +60,7 @@ RGB_NESSY_BLUE = (8, 48, 80)
 RGB_NESSY_ORANGE = (242, 153, 74)
 RGB_NESSY_LIGHT_GREY = (239, 239, 239)
 RGB_DIFFICULTY_MID_GREY = (140, 139, 139)
+RGB_BLACK_TEXT = (0,0,0)
 
 
 # Nom des fenêtres : ne pas mettre d'accent !

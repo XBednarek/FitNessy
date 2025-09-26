@@ -321,6 +321,37 @@ class App :
         if not cst.KEEP_WIN_OPEN :
             cv2.destroyWindow(win)
         return choice
+    
+    def show_next_exercise(self, exo_name:str, objectif:int):
+        """Affiche un écran de transition entre deux exercices"""
+        win = cst.WIN_NAME_TITLE
+        cv2.namedWindow(win)
+
+        # Creation d'un screen d'une couleur unis
+        screen = np.full((self.screen_height, self.screen_width, 3), cst.BGR_NESSY_ORANGE, dtype=np.uint8)
+
+        # taille text
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        font_scale = 1.5 * self.screen_scale
+        thickness = 3
+        # definir le texte
+        text1 = f"Next exercise:"
+        text2 = f"{exo_name}"
+        text3 = f"Objective: {objectif}"
+
+        # centrer
+        y_center = self.screen_height // 2
+        x_center = self.screen_width // 2
+
+        cv2.putText(screen, text1, (x_center-250, y_center-100), font, font_scale, cst.RGB_BLACK_TEXT, thickness, cv2.LINE_AA)
+        cv2.putText(screen, text2, (x_center-250, y_center), font, font_scale, cst.RGB_BLACK_TEXT, thickness, cv2.LINE_AA)
+        cv2.putText(screen, text3, (x_center-250, y_center+100), font, font_scale, cst.RGB_BLACK_TEXT, thickness, cv2.LINE_AA)
+
+        # Affichage quelques secondes
+        cv2.imshow(win, screen)
+        cv2.waitKey(3000)  
+
+        cv2.destroyWindow(win)
 
     # Lancement d'un set d'exercice
     def run_exercice_session(self, exercices:dict) :
@@ -334,6 +365,7 @@ class App :
         scores = {}
         # Lancement de la séance d'exercice
         for exo, objectif in exercices.items():
+            self.show_next_exercise(exo, objectif)
             if self.verbose:
                 print(f"Objectif {objectif:d} {exo}.")
             if exo == cst.EX_HEELS2BUTTOCKS :
@@ -454,7 +486,7 @@ class App :
         screen_width = monitors[0].width
         screen_height = monitors[0].height
         return (screen_width, screen_height)
-        
+
 
 if __name__=='__main__':
     # Tests
