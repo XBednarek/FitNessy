@@ -42,8 +42,10 @@ class App :
         self.verbose = verbose
         # Est-ce qu'on veut tracer les landmarks ?
         self.show_landmarks = False
-        # Est-ce qu'on se mets en mode mirroir
+        # Est-ce qu'on se mets en mode mirroir ?
         self.mirror_mode = False
+        # Est-ce qu'on active la détection de chute ?
+        self.fall_detection_is_on = False
 
         # Setup pour l'utilisation d'une queue qui pourra être utilisée par fastAPI
         self.frame_queue = frame_queue
@@ -155,7 +157,7 @@ class App :
             else :
                 color = cst.BGR_NESSY_LIGHT_GREY
 
-            rect_shldmrks = Rectangle(current_screen, A=(0.4, 0.15), B=(0.6, 0.2), text='show landmark',
+            rect_shldmrks = Rectangle(current_screen, A=(0.4, 0.11), B=(0.6, 0.16), text='show landmark',
                             line_color=color, line_thickness=1,
                             text_color=color, text_font=cv2.FONT_HERSHEY_SIMPLEX,
                             text_thickness=1, text_font_scale=0.5*self.screen_scale)
@@ -166,6 +168,16 @@ class App :
                 color = cst.BGR_NESSY_LIGHT_GREY
             
             rect_mirror = Rectangle(current_screen, A=(0.4, 0.05), B=(0.6, 0.1), text='mirror mode',
+                            line_color=color, line_thickness=1,
+                            text_color=color, text_font=cv2.FONT_HERSHEY_SIMPLEX,
+                            text_thickness=1, text_font_scale=0.5*self.screen_scale)
+            
+            if self.fall_detection_is_on :
+                color = cst.BGR_NESSY_ORANGE
+            else :
+                color = cst.BGR_NESSY_LIGHT_GREY
+            
+            rect_fall_detect = Rectangle(current_screen, A=(0.4, 0.17), B=(0.6, 0.22), text='fall detection',
                             line_color=color, line_thickness=1,
                             text_color=color, text_font=cv2.FONT_HERSHEY_SIMPLEX,
                             text_thickness=1, text_font_scale=0.5*self.screen_scale)
@@ -190,6 +202,14 @@ class App :
                 self.left_clicked_x = -1
                 self.left_clicked_y = -1
             
+            if rect_fall_detect.contains(self.left_clicked_x, self.left_clicked_y):
+                self.fall_detection_is_on = not self.fall_detection_is_on
+                self.updateDetectors()
+                if self.verbose :
+                    print(f"{self.fall_detection_is_on = } ")
+                self.left_clicked_x = -1
+                self.left_clicked_y = -1
+
             if rect_mirror.contains(self.left_clicked_x, self.left_clicked_y):
                 self.mirror_mode = not self.mirror_mode
                 self.updateDetectors()
@@ -399,6 +419,16 @@ class App :
         self.plank_detector.flip_frame = self.mirror_mode
         self.cobra_detector.flip_frame = self.mirror_mode
 
+        # Mise à jour du mode detection de chute
+        self.heels_2_buttocks_detector.fall_detection_is_on = self.fall_detection_is_on
+        self.knee_raise_detector.fall_detection_is_on = self.fall_detection_is_on
+        self.squats_detector.fall_detection_is_on = self.fall_detection_is_on
+        self.push_up_detector.fall_detection_is_on = self.fall_detection_is_on
+        self.tree_pose_detector.fall_detection_is_on = self.fall_detection_is_on
+        self.meditation_pose_detector.fall_detection_is_on = self.fall_detection_is_on
+        self.plank_detector.fall_detection_is_on = self.fall_detection_is_on
+        self.cobra_detector.fall_detection_is_on = self.fall_detection_is_on
+
     # -------------------------------------------------------------------------
     #                                                 Méthodes pour l'affichage
     # -------------------------------------------------------------------------
@@ -454,28 +484,7 @@ class App :
         screen_width = monitors[0].width
         screen_height = monitors[0].height
         return (screen_width, screen_height)
-    
-    # -------------------------------------------------------------------------
-    #                                                    Méthodes pour fast API
-    # -------------------------------------------------------------------------
 
-    def generate_frames(self):
-        """Générateur qui yield les frames au format MJPEG"""
-        while True:
-            try:
-                # Récupérer une frame de la queue
-                frame_bytes = self.frame_queue.get(timeout=1)
-                
-                # Format MJPEG stream
-                yield (b'--frame\r\n'
-                    b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-                    
-            except queue.Empty:
-                # Pas de nouvelle frame disponible
-                continue
-
-
-     
 
 if __name__=='__main__':
     # Tests
