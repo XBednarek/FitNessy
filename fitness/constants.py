@@ -38,7 +38,7 @@ EX_SQUATS = "Squats"
 EX_TREEPOSE = "Tree Pose"
 EX_MEDITATION_POSE = "Meditation pose"
 EX_PLANK = "Planche"
-EX_COBRA="cobra"
+EX_COBRA="Cobra"
 # MOUVEMENTS 
 MOVE_UP = "move up"
 MOVE_DOWN = "move down"
